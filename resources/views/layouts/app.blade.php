@@ -14,131 +14,104 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Template CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-orange {
+            background-color: #ED553B;
+            border-color: #ED553B;
+            color: white;
+        }
+        .btn-orange:hover {
+            background-color: #d94a32;
+            border-color: #d94a32;
+            color: white;
+        }
+        .text-orange {
+            color: #ED553B !important;
+        }
+        .navbar-brand img {
+            transition: transform 0.3s ease;
+        }
+        .navbar-brand:hover img {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body class="antialiased">
     
-    <nav class="navbar navbar-expand-lg navbar-modern sticky-top">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-                <img src="{{ asset('assets/images/sample logo 1.png') }}" alt="Logo" width="45" class="me-2">
-                <span class="fw-bold fs-3 text-dark">Book<span class="text-orange">Nest</span></span>
-            </a>
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Trang chủ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('books.index') }}">Thư viện</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('about') }}">Giới thiệu</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('contact') }}">Liên hệ</a></li>
-                </ul>
-                <div class="d-flex align-items-center gap-3">
-                    @auth('admin')
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-dark rounded-pill px-4">Admin</a>
-                    @else
-                        @auth
-                            <div class="dropdown">
-                                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark fw-semibold" data-bs-toggle="dropdown">
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=ED553B&color=fff" class="rounded-circle me-2" width="35">
-                                    {{ auth()->user()->name }}
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 rounded-4 p-2">
-                                    <li><a class="dropdown-item rounded-3 py-2" href="{{ route('user.profile') }}"><i class="bi bi-person me-2"></i> Hồ sơ</a></li>
-                                    <li><a class="dropdown-item rounded-3 py-2" href="{{ route('user.transactions') }}"><i class="bi bi-credit-card me-2"></i> Giao dịch</a></li>
-                                    <li><a class="dropdown-item rounded-3 py-2" href="{{ route('payment.recharge') }}"><i class="bi bi-coin me-2 text-warning"></i> Nạp điểm</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item rounded-3 py-2 text-danger"><i class="bi bi-box-arrow-right me-2"></i> Đăng xuất</button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
-                        @else
-                            <a href="{{ route('login') }}" class="text-dark fw-semibold text-decoration-none px-3">Đăng nhập</a>
-                            <a href="{{ route('register') }}" class="btn btn-premium px-4">Đăng ký</a>
-                        @endauth
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </nav>
+    @include('layouts.navigation')
 
     <main>
+        {{ $slot ?? '' }}
         @yield('content')
     </main>
 
-    <footer class="footer-modern">
+    <!-- Footer Section -->
+    <footer class="py-5 mt-5" style="background: linear-gradient(90deg, #fffaf9, #fefbf5); border-top: 1px solid #eee;">
         <div class="container">
-            <div class="row gy-5">
-                <div class="col-lg-4 col-md-6">
-                    <div class="d-flex align-items-center mb-4">
-                        <img src="{{ asset('assets/images/sample logo 1.png') }}" alt="Logo" width="50" class="filter-white">
-                        <span class="ms-2 fw-bold fs-3 text-white">BookNest</span>
+            <div class="row gy-4">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ asset('assets/images/sample logo 1.png') }}" alt="Logo" width="80">
+                        <span class="ms-2 fw-bold fs-4 text-dark italic">BookNest</span>
                     </div>
-                    <p class="mb-4 pe-lg-5">
-                        Khám phá kho tàng tri thức vô tận với hàng ngàn đầu sách số đa dạng thể loại. Chúng tôi cam kết mang lại trải nghiệm đọc sách số tốt nhất cho người Việt.
+                    <p class="text-muted small mb-4">
+                        Dịch vụ cung cấp sách và tài liệu số hàng đầu, mang tri thức đỉnh cao đến với mọi người mọi lúc, mọi nơi.
                     </p>
                     <div class="d-flex gap-3">
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle p-2"><i class="bi bi-facebook fs-5"></i></a>
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle p-2"><i class="bi bi-instagram fs-5"></i></a>
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle p-2"><i class="bi bi-twitter-x fs-5"></i></a>
+                        <a href="#" class="text-orange fs-5"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-orange fs-5"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="text-orange fs-5"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-orange fs-5"><i class="bi bi-youtube"></i></a>
                     </div>
+                    <p class="text-muted small mt-4 mb-0">© 2025 BookNest. Tất cả quyền được bảo lưu.</p>
                 </div>
-                <div class="col-lg-2 col-md-6">
-                    <h5 class="text-white mb-4">Khám phá</h5>
-                    <a href="{{ route('books.index') }}" class="footer-link">Sách mới nhất</a>
-                    <a href="{{ route('books.index') }}" class="footer-link">Sách phổ biến</a>
-                    <a href="{{ route('about') }}" class="footer-link">Về chúng tôi</a>
-                    <a href="{{ route('contact') }}" class="footer-link">Liên hệ</a>
+
+                <div class="col-md-4">
+                    <h6 class="fw-bold text-orange mb-3 text-uppercase">Công ty</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ route('home') }}" class="text-dark text-decoration-none d-block mb-2">Trang chủ</a></li>
+                        <li><a href="{{ route('about') }}" class="text-dark text-decoration-none d-block mb-2">Giới thiệu</a></li>
+                        <li><a href="{{ route('books.index') }}" class="text-dark text-decoration-none d-block mb-2">Cửa hàng sách</a></li>
+                        <li><a href="{{ route('contact') }}" class="text-dark text-decoration-none d-block mb-2">Liên hệ</a></li>
+                    </ul>
                 </div>
-                <div class="col-lg-2 col-md-6">
-                    <h5 class="text-white mb-4">Hỗ trợ</h5>
-                    <a href="#" class="footer-link">Hướng dẫn mua sách</a>
-                    <a href="#" class="footer-link">Chính sách bảo mật</a>
-                    <a href="#" class="footer-link">Điều khoản sử dụng</a>
-                    <a href="#" class="footer-link">Câu hỏi thường gặp</a>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <h5 class="text-white mb-4">Bản tin tri thức</h5>
-                    <p class="small mb-4">Đăng ký để nhận thông tin về những đầu sách mới nhất và ưu đãi đặc biệt.</p>
-                    <div class="input-group mb-3 glass-card border-0 p-1">
-                        <input type="email" class="form-control border-0 bg-transparent text-white" placeholder="Email của bạn">
-                        <button class="btn btn-premium" type="button">Đăng ký</button>
+
+                <div class="col-md-4">
+                    <h6 class="fw-bold text-orange mb-3 text-uppercase">Tin mới nhất</h6>
+                    <div class="d-flex mb-3">
+                        <img src="{{ asset('assets/images/news1.png') }}" alt="News 1" class="rounded me-3" width="70" height="70">
+                        <div>
+                            <h6 class="fw-semibold text-dark mb-1">Cách chọn sách phù hợp</h6>
+                            <small class="text-warning">9 Th4 2022</small>
+                        </div>
                     </div>
                 </div>
             </div>
-            <hr class="my-5 opacity-10">
-            <div class="row align-items-center">
-                <div class="col-md-6 text-center text-md-start">
-                    <p class="mb-0 small text-muted">© 2025 BookNest Digital Library. Phát triển bởi Đội ngũ Công nghệ BookNest.</p>
-                </div>
-                <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
-                    <img src="https://vnpay.vn/wp-content/uploads/2020/07/Logo-VNPAYQR-no-background.png" height="30" class="me-3 opacity-50 grayscale-hover">
-                </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <a href="#" class="text-orange small text-decoration-none">Chính sách bảo mật</a>
+                <span class="text-muted mx-2">|</span>
+                <a href="#" class="text-dark small text-decoration-none">Điều khoản dịch vụ</a>
             </div>
         </div>
     </footer>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <style>
-        .filter-white { filter: brightness(0) invert(1); }
-        .grayscale-hover { filter: grayscale(1); transition: filter 0.3s; }
-        .grayscale-hover:hover { filter: grayscale(0); }
-        .text-orange { color: #ED553B !important; }
-    </style>
+    <!-- Custom Template JS -->
+    <script src="{{ asset('assets/js/script.js') }}"></script>
+    
     @yield('js')
 </body>
 </html>

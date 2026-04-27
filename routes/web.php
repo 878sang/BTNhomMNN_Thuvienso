@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/my-profile', [App\Http\Controllers\UserController::class, 'profile'])->name('user.profile');
     Route::get('/my-transactions', [App\Http\Controllers\UserController::class, 'transactions'])->name('user.transactions');
+    Route::post('/books/{book}/rate', [App\Http\Controllers\BookRatingController::class, 'store'])->name('books.rate');
 });
 
 Route::get('/vnpay-return', [App\Http\Controllers\PaymentController::class, 'vnpayReturn'])->name('payment.vnpay_return');
