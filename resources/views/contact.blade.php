@@ -28,7 +28,6 @@
                                 <p class="text-muted mb-0">123 Đường Sách, TP. Hồ Chí Minh, Việt Nam</p>
                             </div>
                         </div>
-
                         <div class="mb-3 d-flex align-items-start">
                             <div class="bg-white p-2 rounded shadow-sm me-3 text-orange">
                                 <i class="bi bi-telephone-fill fs-5"></i>
