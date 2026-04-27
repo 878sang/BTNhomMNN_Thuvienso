@@ -84,7 +84,7 @@
                     <input id="email" type="email" name="email" class="form-control bg-light border-start-0" value="{{ old('email') }}" required autofocus placeholder="admin@example.com">
                 </div>
             </div>
-
+            
             <!-- Password -->
             <div class="mb-4">
                 <label for="password" class="form-label small fw-bold">Mật khẩu</label>
