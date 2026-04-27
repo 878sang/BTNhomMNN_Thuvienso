@@ -13,7 +13,7 @@ class CategoryController extends Controller
         $categories = Category::with('parent')->latest()->paginate(10);
         return view('admin.categories.index', compact('categories'));
     }
-
+    
     public function create()
     {
         $parentCategories = Category::whereNull('parent_id')->get();

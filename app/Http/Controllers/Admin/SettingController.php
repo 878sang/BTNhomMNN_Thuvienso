@@ -12,7 +12,7 @@ class SettingController extends Controller
         $settings = \App\Models\Setting::all()->pluck('value', 'key')->toArray();
         return view('admin.settings.index', compact('settings'));
     }
-
+    
     public function update(Request $request)
     {
         $data = $request->except('_token');
