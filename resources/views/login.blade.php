@@ -71,7 +71,7 @@
                                     data-bs-target="#registerTab" type="button" role="tab">Register</button>
                             </li>
                         </ul>
-
+                        
                         <!-- Tab Content -->
                         <div class="tab-content" id="authTabsContent">
                             <!-- Login Form -->

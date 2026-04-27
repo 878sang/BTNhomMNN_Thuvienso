@@ -57,7 +57,7 @@
                 </div>
             </div>
         </div>
-
+        
         <div class="row justify-content-center fade-up" style="animation-delay: 0.2s;">
             <div class="col-lg-6">
                 <div class="glass-card p-5 border-0">
