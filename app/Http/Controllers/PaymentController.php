@@ -31,7 +31,7 @@ class PaymentController extends Controller
         if (!$vnpTmnCode || !$vnpHashSecret) {
             return back()->withInput()->with('error', 'Thieu cau hinh VNPAY. Vui long cap nhat TmnCode va HashSecret trong trang quan tri.');
         }
-
+        
         $vnpTxnRef = $this->generateTxnRef();
         $vnpOrderInfo = 'Nap diem cho nguoi dung ' . Auth::user()->name;
         $vnpAmount = (int) $request->amount * 100;
