@@ -20,6 +20,7 @@ Route::get('/books/{slug}', [App\Http\Controllers\BookController::class, 'show']
 
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
+Route::post('/contact', [App\Http\Controllers\ContactController::class, 'store'])->name('contact.store');
 
 Route::middleware('auth')->group(function () {
     Route::view('/cart', 'cart')->name('cart');
@@ -61,6 +62,12 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     
     Route::get('comments', [App\Http\Controllers\Admin\CommentController::class, 'index'])->name('comments.index');
     Route::delete('comments/{comment}', [App\Http\Controllers\Admin\CommentController::class, 'destroy'])->name('comments.destroy');
+    
+    Route::get('contacts', [App\Http\Controllers\Admin\ContactController::class, 'index'])->name('contacts.index');
+    Route::get('contacts/{contact}', [App\Http\Controllers\Admin\ContactController::class, 'show'])->name('contacts.show');
+    Route::put('contacts/{contact}/status', [App\Http\Controllers\Admin\ContactController::class, 'updateStatus'])->name('contacts.updateStatus');
+    Route::delete('contacts/{contact}', [App\Http\Controllers\Admin\ContactController::class, 'destroy'])->name('contacts.destroy');
+    Route::get('contacts/mark-all-read', [App\Http\Controllers\Admin\ContactController::class, 'markAllRead'])->name('contacts.markAllRead');
     
     Route::get('ratings', [App\Http\Controllers\Admin\RatingController::class, 'index'])->name('ratings.index');
     Route::delete('ratings/{rating}', [App\Http\Controllers\Admin\RatingController::class, 'destroy'])->name('ratings.destroy');

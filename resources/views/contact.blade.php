@@ -77,28 +77,54 @@
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5">
                         <h4 class="fw-bold mb-4">Gửi tin nhắn trực tuyến</h4>
-                        <form id="contactForm">
+                        
+                        @if(session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                {{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+                        
+                        @if($errors->any())
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <ul class="mb-0">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+                        
+                        <form action="{{ route('contact.store') }}" method="POST">
+                            @csrf
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label small fw-bold text-muted">Họ và tên</label>
-                                    <input type="text" class="form-control rounded-3 border-light bg-light px-3 py-2" placeholder="Ví dụ: Nguyễn Văn A" required>
+                                    <label class="form-label small fw-bold text-muted">Họ và tên <span class="text-danger">*</span></label>
+                                    <input type="text" name="name" class="form-control rounded-3 border-light bg-light px-3 py-2 @error('name') is-invalid @enderror" 
+                                           placeholder="Ví dụ: Nguyễn Văn A" 
+                                           value="{{ auth()->check() ? auth()->user()->name : old('name') }}" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label small fw-bold text-muted">Địa chỉ Email</label>
-                                    <input type="email" class="form-control rounded-3 border-light bg-light px-3 py-2" placeholder="email@example.com" required>
+                                    <label class="form-label small fw-bold text-muted">Địa chỉ Email <span class="text-danger">*</span></label>
+                                    <input type="email" name="email" class="form-control rounded-3 border-light bg-light px-3 py-2 @error('email') is-invalid @enderror" 
+                                           placeholder="email@example.com" 
+                                           value="{{ auth()->check() ? auth()->user()->email : old('email') }}" required>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label small fw-bold text-muted">Chủ đề</label>
-                                    <select class="form-select rounded-3 border-light bg-light px-3 py-2">
-                                        <option selected>Hỗ trợ kỹ thuật</option>
-                                        <option>Góp ý về dịch vụ</option>
-                                        <option>Báo cáo lỗi tài liệu</option>
-                                        <option>Hợp tác phát triển</option>
+                                    <label class="form-label small fw-bold text-muted">Chủ đề <span class="text-danger">*</span></label>
+                                    <select name="subject" class="form-select rounded-3 border-light bg-light px-3 py-2 @error('subject') is-invalid @enderror" required>
+                                        <option value="">-- Chọn chủ đề --</option>
+                                        <option value="Hỗ trợ kỹ thuật" {{ old('subject') == 'Hỗ trợ kỹ thuật' ? 'selected' : '' }}>Hỗ trợ kỹ thuật</option>
+                                        <option value="Góp ý về dịch vụ" {{ old('subject') == 'Góp ý về dịch vụ' ? 'selected' : '' }}>Góp ý về dịch vụ</option>
+                                        <option value="Báo cáo lỗi tài liệu" {{ old('subject') == 'Báo cáo lỗi tài liệu' ? 'selected' : '' }}>Báo cáo lỗi tài liệu</option>
+                                        <option value="Hợp tác phát triển" {{ old('subject') == 'Hợp tác phát triển' ? 'selected' : '' }}>Hợp tác phát triển</option>
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label small fw-bold text-muted">Nội dung tin nhắn</label>
-                                    <textarea class="form-control rounded-3 border-light bg-light px-3 py-2" rows="6" placeholder="Mô tả chi tiết yêu cầu của bạn..." required></textarea>
+                                    <label class="form-label small fw-bold text-muted">Nội dung tin nhắn <span class="text-danger">*</span></label>
+                                    <textarea name="message" class="form-control rounded-3 border-light bg-light px-3 py-2 @error('message') is-invalid @enderror" rows="6" placeholder="Mô tả chi tiết yêu cầu của bạn..." required>{{ old('message') }}</textarea>
                                 </div>
                                 <div class="col-12 text-md-end mt-4">
                                     <button type="submit" class="btn btn-orange rounded-pill px-5 py-3 fw-bold shadow-sm">

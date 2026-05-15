@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->string('name');
             $table->string('email');
+            $table->string('subject');
             $table->text('message');
             $table->enum('status', ['unread', 'read', 'archived'])->default('unread');
             $table->timestamps();
