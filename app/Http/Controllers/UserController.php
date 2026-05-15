@@ -18,4 +18,10 @@ class UserController extends Controller
         $purchasedBooks = $user->purchasedBooks()->latest()->take(5)->get();
         return view('user.profile', compact('user', 'purchasedBooks'));
     }
+
+    public function wishlist()
+    {
+        $favorites = auth()->user()->favorites()->with('book.author')->latest()->paginate(12);
+        return view('user.wishlist', compact('favorites'));
+    }
 }

@@ -16,11 +16,7 @@ class BookRatingController extends Controller
             'comment' => 'nullable|string|max:1000',
         ]);
 
-        // Check if user purchased the book or it's free
-        $hasPurchased = Auth::user()->purchasedBooks()->where('book_id', $book->id)->exists();
-        if (!$hasPurchased && $book->price_points > 0) {
-            return back()->with('error', 'Bạn cần sở hữu tài liệu này trước khi đánh giá.');
-        }
+        // Remove purchase check to allow unified discussion/rating
 
         Rating::updateOrCreate(
             ['user_id' => Auth::id(), 'book_id' => $book->id],

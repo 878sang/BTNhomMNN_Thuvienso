@@ -54,23 +54,29 @@
                             @endif
                         </td>
                         <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                        <td class="pe-4 text-end">
-                            <div class="btn-group">
-                                <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm {{ $user->status ? 'btn-outline-warning' : 'btn-outline-success' }}" title="{{ $user->status ? 'Khóa tài khoản' : 'Kích hoạt tài khoản' }}">
-                                        <i class="bi {{ $user->status ? 'bi-person-x' : 'bi-person-check' }}"></i>
-                                    </button>
-                                </form>
-                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline ms-1" onsubmit="return confirm('Bạn có chắc chắn muốn xóa VĨNH VIỄN người dùng này không?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
+                         <td class="pe-4 text-end">
+                             <div class="btn-group">
+                                 <a href="{{ route('admin.users.show', $user) }}" class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                     <i class="bi bi-eye"></i>
+                                 </a>
+                                 <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-outline-primary ms-1" title="Chỉnh sửa">
+                                     <i class="bi bi-pencil"></i>
+                                 </a>
+                                 <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="d-inline ms-1">
+                                     @csrf
+                                     <button type="submit" class="btn btn-sm {{ $user->status ? 'btn-outline-warning' : 'btn-outline-success' }}" title="{{ $user->status ? 'Khóa tài khoản' : 'Kích hoạt tài khoản' }}">
+                                         <i class="bi {{ $user->status ? 'bi-person-x' : 'bi-person-check' }}"></i>
+                                     </button>
+                                 </form>
+                                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline ms-1" onsubmit="return confirm('Bạn có chắc chắn muốn xóa VĨNH VIỄN người dùng này không?')">
+                                     @csrf
+                                     @method('DELETE')
+                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa vĩnh viễn">
+                                         <i class="bi bi-trash"></i>
+                                     </button>
+                                 </form>
+                             </div>
+                         </td>
                     </tr>
                     @empty
                     <tr>

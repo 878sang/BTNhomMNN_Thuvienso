@@ -1,0 +1,105 @@
+I. Phân hệ các chức năng dành cho Quản trị viên
+Phân hệ này cung cấp các công cụ để quản lý và vận hành toàn bộ hệ thống:
+
+1. Quản lý tài khoản
+
+Thêm mới tài khoản: Tạo tài khoản mới cho người dùng.
+
+Xóa tài khoản: Chuyển trạng thái tài khoản sang "Ngưng hoạt động" thay vì xóa vĩnh viễn để bảo toàn dữ liệu.
+
+Chỉnh sửa tài khoản: Cập nhật và chỉnh sửa thông tin người dùng.
+
+Thống kê tài khoản người dùng: Xem danh sách và thông tin thống kê của các tài khoản đã đăng ký.
+
+2. Quản lý danh mục tài liệu/sách
+
+Thêm mới danh mục tài liệu: Phục vụ phân loại và quản lý tài liệu.
+
+Chỉnh sửa danh mục tài liệu: Cập nhật tên gọi hoặc mô tả của danh mục.
+
+Xóa danh mục tài liệu: Chuyển danh mục sang trạng thái "Ngưng hoạt động" nếu không còn sử dụng.
+
+3. Quản lý tài liệu/sách
+
+Quản lý nhà xuất bản: Thêm mới, chỉnh sửa, xóa thông tin nhà xuất bản.
+
+Quản lý tác giả: Thêm mới, chỉnh sửa, xóa thông tin tác giả.
+
+Quản lý tài liệu/sách: Thêm mới, chỉnh sửa, xóa và phê duyệt tài liệu/sách do người dùng đăng tải.
+
+4. Quản lý tương tác người dùng
+
+Xem và thống kê bình luận: Quản lý nội dung bình luận của người dùng.
+
+Xem và thống kê đánh giá: Quản lý các đánh giá chất lượng tài liệu từ người dùng.
+
+Xem và thống kê tài liệu yêu thích: Theo dõi danh sách tài liệu được đánh dấu yêu thích.
+
+Xem và thống kê lượt tải xuống: Theo dõi số lượt tải để nắm bắt nhu cầu sử dụng.
+
+5. Quản lý hệ thống
+
+Quản lý các chức năng liên kết: Tạo mới, sửa, xóa các liên kết trên website.
+
+Quản lý hình ảnh trượt: Điều chỉnh các hình ảnh trượt (slider) trên trang chủ.
+
+Thống kê lịch sử giao dịch: Xem toàn bộ lịch sử giao dịch của người dùng (chỉ xem, không được sửa/xóa).
+
+Cấu hình hệ thống: Cấu hình giới hạn đăng nhập sai, số lượng tài liệu hiển thị trên trang chủ,....
+
+Thống kê điểm số: Theo dõi điểm số hiện tại và lịch sử sử dụng điểm của từng người dùng.
+
+II. Phân hệ các chức năng dành cho Người dùng
+Phân hệ này hướng tới việc nâng cao trải nghiệm tìm kiếm, đóng góp và sử dụng tài liệu của cộng đồng:
+
+1. Quản lý tài khoản
+
+Đăng ký và đăng nhập: Cho phép tạo và truy cập tài khoản cá nhân.
+
+Ngăn chặn dò mật khẩu: Tạm ngưng đăng nhập nếu nhập sai mật khẩu vượt quá số lần quy định.
+
+Đổi thông tin cá nhân: Chỉnh sửa các thông tin trong hồ sơ cá nhân.
+
+Đổi mật khẩu: Thay đổi mật khẩu đăng nhập.
+
+Báo quên mật khẩu: Khôi phục mật khẩu thông qua liên kết gửi về email.
+
+Xem tài liệu đã yêu thích: Xem lại danh sách các tài liệu đã đánh dấu.
+
+Xem lịch sử giao dịch: Xem lịch sử nạp tiền và đổi điểm.
+
+2. Quản lý tương tác
+
+Đăng tải tài liệu: Hỗ trợ tải lên nhiều định dạng tệp (Word, Excel, PDF, Text...).
+
+Đánh giá yêu thích: Lưu lại các tài liệu quan tâm.
+
+Tải xuống tài liệu: Tải bản gốc hoặc bản PDF (sử dụng điểm tương ứng với tài liệu).
+
+Xem tài liệu: Xem trước một phần nội dung trực tiếp trên web dưới dạng PDF.
+
+Tìm kiếm tài liệu: Chức năng tìm kiếm nhanh.
+
+Bình luận tài liệu: Thảo luận và trao đổi ý kiến.
+
+Đề xuất và phản hồi: Gửi phản hồi trực tiếp cho quản trị viên qua trang "Liên hệ".
+
+Đánh giá tài liệu: Chấm điểm sao (từ 1 đến 5 sao).
+
+Nạp tiền đổi điểm: Hỗ trợ thanh toán qua VNPAY hoặc các cổng thanh toán ảo để quy đổi thành điểm sử dụng.
+
+3. Cập nhật điểm của người dùng
+
+Cộng điểm khi nạp tiền: Điểm được cộng vào tài khoản dựa trên số tiền nạp.
+
+Cộng điểm khi tài liệu được duyệt: Nhận điểm thưởng khi tài liệu đăng tải được quản trị viên duyệt.
+
+Cộng điểm khi tài liệu của mình được tải: Nhận điểm khi có người dùng khác tải tài liệu của mình.
+
+Trừ điểm khi tải tài liệu: Tự động trừ điểm khi người dùng tải các tài liệu có thu điểm.
+
+Tóm tắt nội dung tài liệu bằng AI: Sử dụng NLP để tóm tắt toàn bộ hoặc từng phần văn bản trước khi đọc chi tiết.
+
+Chuyển văn bản thành giọng nói: Hỗ trợ nghe nội dung tài liệu bằng âm thanh.
+
+Chatbot hỏi/đáp: Cho phép người dùng đặt câu hỏi và tìm hiểu thông tin chi tiết dựa trên nội dung của chính tài liệu đó.

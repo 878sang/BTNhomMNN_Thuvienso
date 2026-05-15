@@ -136,6 +136,21 @@
                 <li class="{{ request()->is('admin/users*') ? 'active' : '' }}">
                     <a href="{{ url('/admin/users') }}"><i class="bi bi-people me-2"></i> Người dùng</a>
                 </li>
+                <li class="{{ request()->is('admin/comments*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.comments.index') }}"><i class="bi bi-chat-left-text me-2"></i> Bình luận</a>
+                </li>
+                <li class="{{ request()->is('admin/ratings*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.ratings.index') }}"><i class="bi bi-star me-2"></i> Đánh giá</a>
+                </li>
+                <li class="{{ request()->is('admin/favorites*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.favorites.index') }}"><i class="bi bi-heart me-2"></i> Yêu thích</a>
+                </li>
+                <li class="{{ request()->is('admin/downloads*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.downloads.index') }}"><i class="bi bi-download me-2"></i> Lượt tải</a>
+                </li>
+                <li class="{{ request()->is('admin/links*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.links.index') }}"><i class="bi bi-link-45deg me-2"></i> Liên kết</a>
+                </li>
                 <li class="{{ request()->is('admin/transactions*') ? 'active' : '' }}">
                     <a href="{{ url('/admin/transactions') }}"><i class="bi bi-wallet2 me-2"></i> Giao dịch</a>
                 </li>

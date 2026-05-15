@@ -8,10 +8,17 @@ use App\Models\Book;
 
 class BookController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $books = Book::with(['category', 'author', 'publisher', 'user'])->latest()->paginate(10);
-        return view('admin.books.index', compact('books'));
+        $categories = \App\Models\Category::all();
+        $query = Book::with(['category', 'author', 'publisher', 'user']);
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        $books = $query->latest()->paginate(10);
+        return view('admin.books.index', compact('books', 'categories'));
     }
 
     public function create()
@@ -161,7 +168,23 @@ class BookController extends Controller
     public function approve(Book $book)
     {
         $book->update(['status' => 'approved']);
-        return back()->with('success', 'Đã phê duyệt tài liệu.');
+        
+        // Award points to uploader if they are a regular user
+        if ($book->user && $book->user->role !== 'admin') {
+            $pointsPerApproval = (int) (\App\Models\Setting::getVal('points_per_approval') ?: 50);
+            $book->user->increment('points', $pointsPerApproval);
+            
+            \App\Models\PointsTransaction::create([
+                'user_id' => $book->user->id,
+                'amount' => 0,
+                'points' => $pointsPerApproval,
+                'type' => 'bonus',
+                'status' => 'completed',
+                'reference_id' => 'APPROVAL-BONUS-' . $book->id,
+            ]);
+        }
+        
+        return back()->with('success', 'Đã phê duyệt tài liệu và cộng điểm thưởng cho người đăng.');
     }
 
     public function reject(Book $book)

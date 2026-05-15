@@ -39,6 +39,17 @@
         .text-orange {
             color: #ED553B !important;
         }
+        .bg-orange-light {
+            background-color: rgba(237, 85, 59, 0.1);
+        }
+        .btn-outline-orange {
+            color: #ED553B;
+            border-color: #ED553B;
+        }
+        .btn-outline-orange:hover {
+            background-color: #ED553B;
+            color: white;
+        }
         .navbar-brand img {
             transition: transform 0.3s ease;
         }
@@ -113,5 +124,6 @@
     <script src="{{ asset('assets/js/script.js') }}"></script>
     
     @yield('js')
+    @stack('extra-content')
 </body>
 </html>

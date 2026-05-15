@@ -13,6 +13,31 @@
     </a>
 </div>
 
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form action="{{ route('admin.books.index') }}" method="GET" class="row g-3 align-items-center">
+            <div class="col-auto">
+                <label class="fw-bold"><i class="bi bi-filter me-1"></i> Lọc theo danh mục:</label>
+            </div>
+            <div class="col-md-4">
+                <select name="category_id" class="form-select border-0 bg-light shadow-none" onchange="this.form.submit()">
+                    <option value="">Tất cả danh mục</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            @if(request('category_id'))
+                <div class="col-auto">
+                    <a href="{{ route('admin.books.index') }}" class="btn btn-outline-secondary">Xóa lọc</a>
+                </div>
+            @endif
+        </form>
+    </div>
+</div>
+
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -33,7 +58,7 @@
                     <tr>
                         <td class="ps-4">
                             <div class="d-flex align-items-center">
-                                <img src="{{ asset('storage/' . $book->thumbnail) }}" class="rounded me-3 shadow-sm" width="50" height="70" style="object-fit: cover;">
+                                <img src="{{ $book->thumbnail ? asset('storage/' . $book->thumbnail) : 'https://via.placeholder.com/50x70' }}" class="rounded me-3 shadow-sm" width="50" height="70" style="object-fit: cover;">
                                 <div>
                                     <div class="fw-bold text-wrap" style="max-width: 200px;">{{ $book->title }}</div>
                                     <small class="text-muted"><i class="bi bi-eye me-1"></i> {{ $book->view_count }} lượt xem</small>
@@ -41,11 +66,11 @@
                             </div>
                         </td>
                         <td>
-                            <span class="badge bg-secondary bg-opacity-10 text-secondary fw-normal">{{ $book->category->name }}</span>
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary fw-normal">{{ $book->category->name ?? 'N/A' }}</span>
                         </td>
                         <td>
-                            <div class="small"><strong>Tác giả:</strong> {{ $book->author->name }}</div>
-                            <div class="small text-muted"><strong>NXB:</strong> {{ $book->publisher->name }}</div>
+                            <div class="small"><strong>Tác giả:</strong> {{ $book->author->name ?? 'N/A' }}</div>
+                            <div class="small text-muted"><strong>NXB:</strong> {{ $book->publisher->name ?? 'N/A' }}</div>
                         </td>
                         <td>
                             @if($book->price_points == 0)
@@ -100,7 +125,7 @@
                     <tr>
                         <td colspan="7" class="text-center py-5 text-muted">
                             <i class="bi bi-book fs-1 d-block mb-3"></i>
-                            Không tìm thấy cuốn sách nào trong thư viện.
+                            Không tìm thấy cuốn sách nào trong danh mục này.
                         </td>
                     </tr>
                     @endforelse
@@ -110,7 +135,7 @@
     </div>
     @if($books->hasPages())
     <div class="card-footer bg-white border-0 py-3">
-        {{ $books->links() }}
+        {{ $books->appends(request()->query())->links() }}
     </div>
     @endif
 </div>

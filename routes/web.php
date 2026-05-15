@@ -59,11 +59,33 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::resource('users', App\Http\Controllers\Admin\UserController::class);
     Route::post('users/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
     
+    Route::get('comments', [App\Http\Controllers\Admin\CommentController::class, 'index'])->name('comments.index');
+    Route::delete('comments/{comment}', [App\Http\Controllers\Admin\CommentController::class, 'destroy'])->name('comments.destroy');
+    
+    Route::get('ratings', [App\Http\Controllers\Admin\RatingController::class, 'index'])->name('ratings.index');
+    Route::delete('ratings/{rating}', [App\Http\Controllers\Admin\RatingController::class, 'destroy'])->name('ratings.destroy');
+    
+    Route::get('favorites', [App\Http\Controllers\Admin\FavoriteController::class, 'index'])->name('favorites.index');
+    Route::get('downloads', [App\Http\Controllers\Admin\DownloadController::class, 'index'])->name('downloads.index');
+    
+    Route::resource('links', App\Http\Controllers\Admin\LinkController::class);
+    
     Route::get('transactions', [App\Http\Controllers\Admin\PointsTransactionController::class, 'index'])->name('transactions.index');
     Route::resource('sliders', App\Http\Controllers\Admin\SliderController::class);
     Route::get('settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
     Route::post('settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
     Route::post('logout', [App\Http\Controllers\Admin\AuthController::class, 'logout'])->name('logout');
 });
+
+Route::middleware('auth')->prefix('my')->name('user.')->group(function () {
+    Route::resource('books', App\Http\Controllers\User\BookController::class);
+    Route::post('books/{book}/favorite', [App\Http\Controllers\BookController::class, 'toggleFavorite'])->name('books.favorite');
+    Route::get('wishlist', [App\Http\Controllers\UserController::class, 'wishlist'])->name('wishlist');
+    Route::post('books/{book}/comment', [App\Http\Controllers\CommentController::class, 'store'])->name('books.comment');
+});
+
+Route::get('/books/{book}/download', [App\Http\Controllers\BookController::class, 'download'])->name('books.download');
+
+Route::post('/ai/chat', [App\Http\Controllers\AiChatController::class, 'chat'])->name('ai.chat');
 
 require __DIR__.'/auth.php';

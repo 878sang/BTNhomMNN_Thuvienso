@@ -28,11 +28,16 @@
                     <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-person-circle fs-5 me-1"></i>
                         <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
+                        <span class="badge bg-orange-light text-orange ms-2 d-none d-lg-inline-block">
+                            <i class="bi bi-coin"></i> {{ number_format(Auth::user()->points) }} điểm
+                        </span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
                         <li><a class="dropdown-item py-2" href="{{ route('dashboard') }}"><i class="bi bi-speedometer2 me-2"></i> Bảng điều khiển</a></li>
                         <li><a class="dropdown-item py-2" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2"></i> Thông tin cá nhân</a></li>
                         <li><a class="dropdown-item py-2" href="{{ route('user.transactions') }}"><i class="bi bi-wallet2 me-2"></i> Lịch sử giao dịch</a></li>
+                        <li><a class="dropdown-item py-2" href="{{ route('user.wishlist') }}"><i class="bi bi-heart me-2"></i> Tài liệu yêu thích</a></li>
+                        <li><a class="dropdown-item py-2" href="{{ route('user.books.index') }}"><i class="bi bi-cloud-upload me-2"></i> Tài liệu của tôi</a></li>
                         @if(Auth::user()->role === 'admin')
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item py-2 text-danger" href="{{ route('admin.dashboard') }}"><i class="bi bi-shield-lock me-2"></i> Trang quản trị</a></li>

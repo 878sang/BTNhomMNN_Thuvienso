@@ -51,7 +51,7 @@
                     </div>
                 </div>
 
-                <div class="mb-4 pb-3">
+                <div class="mb-4 pb-3 border-bottom">
                     <h5 class="fw-bold mb-3">Cấu hình VNPAY</h5>
                     <div class="mb-3">
                         <label class="form-label">VNPAY TmnCode</label>
@@ -60,6 +60,42 @@
                     <div class="mb-3">
                         <label class="form-label">VNPAY HashSecret</label>
                         <input type="password" name="vnp_HashSecret" class="form-control" value="{{ $settings['vnp_HashSecret'] ?? '' }}" placeholder="Nhập chuỗi bí mật băm VNPAY">
+                    </div>
+                </div>
+
+                <div class="mb-4 pb-3">
+                    <h5 class="fw-bold mb-3">Cấu hình vận hành</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Giới hạn đăng nhập sai</label>
+                            <div class="input-group">
+                                <input type="number" name="login_attempts_limit" class="form-control" value="{{ $settings['login_attempts_limit'] ?? 5 }}">
+                                <span class="input-group-text bg-white">Lần</span>
+                            </div>
+                            <small class="text-muted">Tài khoản sẽ bị khóa nếu vượt quá số lần này.</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Số tài liệu trang chủ</label>
+                            <div class="input-group">
+                                <input type="number" name="homepage_items_count" class="form-control" value="{{ $settings['homepage_items_count'] ?? 12 }}">
+                                <span class="input-group-text bg-white">Tài liệu</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Điểm thưởng khi được duyệt</label>
+                            <div class="input-group">
+                                <input type="number" name="points_per_approval" class="form-control" value="{{ $settings['points_per_approval'] ?? 50 }}">
+                                <span class="input-group-text bg-white">Điểm</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Hoa hồng người đăng (%)</label>
+                            <div class="input-group">
+                                <input type="number" name="uploader_commission_percent" class="form-control" value="{{ $settings['uploader_commission_percent'] ?? 20 }}">
+                                <span class="input-group-text bg-white">%</span>
+                            </div>
+                            <small class="text-muted">Phần trăm điểm người đăng nhận được khi có người tải.</small>
+                        </div>
                     </div>
                 </div>
 

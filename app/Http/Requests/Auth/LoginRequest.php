@@ -42,8 +42,27 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        $user = \App\Models\User::where('email', $this->email)->first();
+        if ($user && !$user->status) {
+            throw ValidationException::withMessages([
+                'email' => 'Tài khoản của bạn đang ở trạng thái ngưng hoạt động. Vui lòng liên hệ quản trị viên.',
+            ]);
+        }
+
         if (! Auth::guard($guard)->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
+
+            $maxAttempts = (int) (\App\Models\Setting::getVal('login_attempts_limit') ?: 5);
+            if (RateLimiter::attempts($this->throttleKey()) >= $maxAttempts && $user) {
+                $user->update(['status' => false]);
+                
+                \App\Models\ActivityLog::create([
+                    'user_id' => $user->id,
+                    'action' => 'account_suspended',
+                    'description' => 'Tài khoản bị khóa do nhập sai mật khẩu quá ' . $maxAttempts . ' lần.',
+                    'ip_address' => $this->ip(),
+                ]);
+            }
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
@@ -60,7 +79,9 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        $maxAttempts = (int) (\App\Models\Setting::getVal('login_attempts_limit') ?: 5);
+
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), $maxAttempts)) {
             return;
         }
 
