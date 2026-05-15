@@ -25,6 +25,7 @@ class Book extends Model
         'download_count',
         'pdf_version_path',
         'preview_path',
+        'page_count',
     ];
 
     public function category()

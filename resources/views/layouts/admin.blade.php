@@ -139,6 +139,9 @@
                 <li class="{{ request()->is('admin/comments*') ? 'active' : '' }}">
                     <a href="{{ route('admin.comments.index') }}"><i class="bi bi-chat-left-text me-2"></i> Bình luận</a>
                 </li>
+                <li class="{{ request()->is('admin/contacts*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.contacts.index') }}"><i class="bi bi-envelope me-2"></i> Liên hệ</a>
+                </li>
                 <li class="{{ request()->is('admin/ratings*') ? 'active' : '' }}">
                     <a href="{{ route('admin.ratings.index') }}"><i class="bi bi-star me-2"></i> Đánh giá</a>
                 </li>

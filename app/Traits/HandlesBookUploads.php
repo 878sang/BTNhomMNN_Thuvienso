@@ -96,4 +96,15 @@ trait HandlesBookUploads
             return null;
         }
     }
+
+    public function getPdfPageCount($pdfFilePath)
+    {
+        try {
+            $pdf = new Fpdi();
+            return $pdf->setSourceFile($pdfFilePath);
+        } catch (\Exception $e) {
+            Log::error('PDF Page Count Failed: ' . $e->getMessage());
+            return null;
+        }
+    }
 }

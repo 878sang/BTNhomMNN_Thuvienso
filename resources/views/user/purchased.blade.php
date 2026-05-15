@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Danh sách yêu thích')
+@section('title', 'Tài liệu đã mua')
 
 @section('content')
 <div class="container py-5">
@@ -26,13 +26,13 @@
                 <a href="{{ route('user.profile') }}" class="list-group-item list-group-item-action py-3">
                     <i class="bi bi-person-circle me-2"></i> Hồ sơ của tôi
                 </a>
-                <a href="{{ route('user.purchased') }}" class="list-group-item list-group-item-action py-3">
+                <a href="{{ route('user.purchased') }}" class="list-group-item list-group-item-action py-3 active border-orange" style="background-color: #ED553B; border-color: #ED553B;">
                     <i class="bi bi-bag-check-fill me-2"></i> Tài liệu đã mua
                 </a>
                 <a href="{{ route('user.transactions') }}" class="list-group-item list-group-item-action py-3">
                     <i class="bi bi-wallet2 me-2"></i> Giao dịch
                 </a>
-                <a href="{{ route('wishlist') }}" class="list-group-item list-group-item-action py-3 active border-orange" style="background-color: #ED553B; border-color: #ED553B;">
+                <a href="{{ route('wishlist') }}" class="list-group-item list-group-item-action py-3">
                     <i class="bi bi-heart-fill me-2"></i> Danh sách yêu thích
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
@@ -45,9 +45,9 @@
         </div>
 
         <div class="col-md-9">
-            <h2 class="fw-bold mb-4"><i class="bi bi-heart-fill text-danger me-2"></i>Danh sách yêu thích</h2>
+            <h2 class="fw-bold mb-4"><i class="bi bi-bag-check-fill text-success me-2"></i>Tài liệu đã mua</h2>
             
-            @if($favorites->count() > 0)
+            @if($purchasedBooks->count() > 0)
                 <div class="card border-0 shadow-sm overflow-hidden mb-4">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
@@ -56,21 +56,20 @@
                                     <th class="ps-4">Tài liệu</th>
                                     <th>Tác giả</th>
                                     <th>Danh mục</th>
-                                    <th>Điểm</th>
+                                    <th>Điểm đã trả</th>
                                     <th class="pe-4">Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody id="wishlistTable">
-                                @foreach($favorites as $favorite)
-                                @php $book = $favorite->book; @endphp
-                                <tr id="favorite-row-{{ $favorite->id }}">
+                            <tbody>
+                                @foreach($purchasedBooks as $book)
+                                <tr>
                                     <td class="ps-4">
                                         <div class="d-flex align-items-center">
                                             <img src="{{ $book->thumbnail ? asset('storage/' . $book->thumbnail) : 'https://ui-avatars.com/api/?name=' . urlencode($book->title) . '&size=64' }}" 
                                                  alt="{{ $book->title }}" class="rounded me-3" style="width: 50px; height: 60px; object-fit: cover;">
                                             <div>
                                                 <a href="{{ route('books.show', $book->slug) }}" class="text-decoration-none fw-bold text-dark">{{ $book->title }}</a>
-                                                <div class="small text-muted">Đã thêm: {{ $favorite->created_at->format('d/m/Y') }}</div>
+                                                <div class="small text-muted">Mua: {{ $book->pivot->created_at->format('d/m/Y') }}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -81,21 +80,16 @@
                                         <span class="badge bg-primary bg-opacity-10 text-primary">{{ $book->category->name ?? 'Khác' }}</span>
                                     </td>
                                     <td>
-                                        <span class="fw-bold text-danger">{{ number_format($book->price_points) }} điểm</span>
+                                        <span class="fw-bold text-danger">{{ number_format($book->pivot->price_paid) }} điểm</span>
                                     </td>
                                     <td class="pe-4">
                                         <div class="d-flex gap-2">
-                                            <a href="{{ route('books.show', $book->slug) }}" class="btn btn-sm btn-outline-primary">
+                                            <a href="{{ route('books.show', $book->slug) }}" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                            @if($book->price_points == 0 || auth()->user()->purchasedBooks()->where('book_id', $book->id)->exists())
-                                                <a href="{{ route('books.preview_pdf', $book) }}" class="btn btn-sm btn-success" target="_blank">
-                                                    <i class="bi bi-book"></i>
-                                                </a>
-                                            @endif
-                                            <button type="button" class="btn btn-sm btn-outline-danger btn-remove-favorite" data-favorite-id="{{ $favorite->id }}" data-book-id="{{ $book->id }}">
-                                                <i class="bi bi-heart-fill"></i>
-                                            </button>
+                                            <a href="{{ route('books.preview_pdf', $book) }}" class="btn btn-sm btn-success" title="Đọc sách" target="_blank">
+                                                <i class="bi bi-book"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -106,16 +100,16 @@
                 </div>
                 
                 <div class="mt-4">
-                    {{ $favorites->links() }}
+                    {{ $purchasedBooks->links() }}
                 </div>
             @else
                 <div class="card border-0 shadow-sm text-center py-5">
                     <div class="card-body">
                         <div class="mb-4">
-                            <i class="bi bi-heart text-muted" style="font-size: 5rem;"></i>
+                            <i class="bi bi-bag text-muted" style="font-size: 5rem;"></i>
                         </div>
-                        <h5 class="fw-bold">Bạn chưa có tài liệu yêu thích nào.</h5>
-                        <p class="text-muted">Hãy khám phá thư viện và lưu lại những tài liệu hữu ích nhé!</p>
+                        <h5 class="fw-bold">Bạn chưa mua tài liệu nào.</h5>
+                        <p class="text-muted">Hãy khám phá thư viện và mua những tài liệu hữu ích nhé!</p>
                         <a href="{{ route('books.index') }}" class="btn btn-orange text-white px-4 mt-3">
                             <i class="bi bi-search me-2"></i>Khám phá ngay
                         </a>
@@ -125,58 +119,4 @@
         </div>
     </div>
 </div>
-@endsection
-
-@section('js')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Remove favorite
-    document.querySelectorAll('.btn-remove-favorite').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            if (!confirm('Bạn có chắc muốn xóa khỏi danh sách yêu thích?')) return;
-            
-            const favoriteId = this.dataset.favoriteId;
-            const bookId = this.dataset.bookId;
-            const row = document.getElementById('favorite-row-' + favoriteId);
-            
-            try {
-                const response = await fetch(`/my/books/${bookId}/favorite`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                if (data.status === 'removed') {
-                    if (row) {
-                        row.style.animation = 'fadeOut 0.3s ease';
-                        setTimeout(() => {
-                            row.remove();
-                            // Check if table is empty
-                            const tbody = document.getElementById('wishlistTable');
-                            if (tbody && tbody.children.length === 0) {
-                                location.reload();
-                            }
-                        }, 300);
-                    }
-                }
-            } catch(e) {
-                alert('Có lỗi xảy ra. Vui lòng thử lại.');
-            }
-        });
-    });
-});
-</script>
-<style>
-@keyframes fadeOut {
-    from { opacity: 1; transform: translateX(0); }
-    to { opacity: 0; transform: translateX(20px); }
-}
-.table > :not(caption) > * > * {
-    padding: 1rem 0.75rem;
-}
-</style>
 @endsection

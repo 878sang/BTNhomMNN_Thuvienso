@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('links', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->string('url');
-            $table->integer('position')->default(0);
-            $table->boolean('status')->default(true);
-            $table->timestamps();
+        Schema::table('contact_messages', function (Blueprint $table) {
+            $table->string('subject')->after('email');
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('links');
+        Schema::table('contact_messages', function (Blueprint $table) {
+            //
+        });
     }
 };
