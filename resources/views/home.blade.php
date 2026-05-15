@@ -38,48 +38,68 @@
     </div>
 
     <!-- Top Categories Section -->
-    <section class="categories-section py-5">
+    <section class="categories-section py-5 bg-light">
         <div class="container">
-            <!-- Header Row -->
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
-                <div>
-                    <h6 class="text-uppercase text-orange fw-semibold mb-1">Danh mục</h6>
-                    <h2 class="fw-bold text-dark">Khám phá các Danh mục hàng đầu</h2>
-                </div>
-                <p class="text-muted mt-3 mt-md-0 ms-md-4" style="max-width: 500px;">
+            <!-- Section Header -->
+            <div class="text-center mb-5">
+                <span class="text-uppercase text-orange fw-semibold small tracking-wider">Khám phá</span>
+                <h2 class="fw-bold text-dark mb-3">Danh mục Tài liệu</h2>
+                <p class="text-muted mx-auto" style="max-width: 600px;">
                     Hệ thống tài liệu được phân loại khoa học, giúp bạn dễ dàng tiếp cận nguồn tri thức từ công nghệ, kinh tế đến nghệ thuật và kỹ năng sống.
                 </p>
             </div>
 
-            <!-- Navigation Arrows -->
-            <div class="d-flex justify-content-start gap-2 mb-4">
-                <button class="btn btn-outline-primary rounded-circle arrow-btn"><i class="bi bi-arrow-left"></i></button>
-                <button class="btn btn-primary rounded-circle arrow-btn"><i class="bi bi-arrow-right"></i></button>
-            </div>
-
-            <!-- Category Cards -->
+            <!-- Category Cards Grid -->
             <div class="row g-4">
-                @foreach($categories->take(3) as $category)
-                <div class="col-md-4">
-                    <a href="{{ route('books.index', ['category' => $category->slug]) }}" class="text-decoration-none h-100 d-block">
-                        <div class="category-card text-center p-3 h-100 bg-white">
-                            <img src="{{ asset('assets/images/cat' . (($loop->index % 3) + 1) . '.png') }}" class="img-fluid rounded mb-3" alt="{{ $category->name }}" onerror="this.src='https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400'">
-                            <h5 class="fw-semibold mb-2 text-dark">{{ $category->name }}</h5>
-                            <p class="text-muted small mb-0">
-                                {{ $category->books_count }} tài liệu đang được chia sẻ trong danh mục này.
-                            </p>
+                @forelse($categories->take(6) as $category)
+                <div class="col-6 col-md-4 col-lg-2">
+                    <a href="{{ route('books.index', ['category' => $category->slug]) }}" class="text-decoration-none">
+                        <div class="category-card bg-white rounded-3 p-4 text-center h-100 shadow-sm transition-all hover-lift">
+                            <div class="category-icon mb-3 mx-auto d-flex align-items-center justify-content-center rounded-circle">
+                                <i class="bi bi-folder-fill text-orange fs-4"></i>
+                            </div>
+                            <h6 class="fw-bold mb-2 text-dark">{{ $category->name }}</h6>
+                            <span class="badge bg-light text-muted small">{{ $category->books_count ?? 0 }} tài liệu</span>
                         </div>
                     </a>
                 </div>
-                @endforeach
+                @empty
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">Chưa có danh mục nào.</p>
+                </div>
+                @endforelse
             </div>
 
-            <!-- View More Button -->
+            <!-- View All Link -->
             <div class="text-center mt-5">
-                <a href="{{ route('books.index') }}" class="btn btn-outline-primary rounded-pill px-4 py-2">Xem thêm →</a>
+                <a href="{{ route('books.index') }}" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold">
+                    <i class="bi bi-grid me-2"></i>Xem tất cả danh mục
+                </a>
             </div>
         </div>
     </section>
+
+    <style>
+        .categories-section .tracking-wider {
+            letter-spacing: 2px;
+        }
+        .category-card {
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .category-card .category-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(237, 85, 59, 0.1);
+        }
+        .category-card.hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+            border-color: rgba(237, 85, 59, 0.2);
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
 
     <!-- eBook Section -->
     <section class="ebook-section py-5">
