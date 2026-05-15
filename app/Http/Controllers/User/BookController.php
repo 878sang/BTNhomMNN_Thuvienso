@@ -68,6 +68,7 @@ class BookController extends Controller
             if ($extension == 'pdf' || isset($data['pdf_version_path'])) {
                 $previewFileName = 'preview_' . pathinfo($data['file_path'], PATHINFO_FILENAME) . '.pdf';
                 $data['preview_path'] = $this->generatePreview($pdfPath, $previewFileName);
+                $data['page_count'] = $this->getPdfPageCount($pdfPath);
             }
         }
 

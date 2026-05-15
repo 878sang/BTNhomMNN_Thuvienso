@@ -139,21 +139,21 @@
                         <div class="col-md-3">
                             <div class="text-center p-3 bg-light rounded">
                                 <i class="bi bi-eye text-primary fs-4"></i>
-                                <p class="mb-0 mt-1"><strong>1.2k</strong></p>
+                                <p class="mb-0 mt-1"><strong>{{ number_format($book->view_count) }}</strong></p>
                                 <small class="text-muted">Lượt xem</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="text-center p-3 bg-light rounded">
                                 <i class="bi bi-download text-success fs-4"></i>
-                                <p class="mb-0 mt-1"><strong>456</strong></p>
+                                <p class="mb-0 mt-1"><strong>{{ number_format($book->download_count) }}</strong></p>
                                 <small class="text-muted">Lượt tải</small>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="text-center p-3 bg-light rounded">
                                 <i class="bi bi-heart text-danger fs-4"></i>
-                                <p class="mb-0 mt-1"><strong>89</strong></p>
+                                <p class="mb-0 mt-1" id="fav-count"><strong>{{ number_format($book->favoritedBy()->where('status', 'active')->count()) }}</strong></p>
                                 <small class="text-muted">Yêu thích</small>
                             </div>
                         </div>
@@ -173,13 +173,13 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <p class="mb-2"><strong>Định dạng:</strong> .{{ strtoupper($extension) }}</p>
-                                    <p class="mb-2"><strong>Dung lượng:</strong> 15.2 MB</p>
+                                    <p class="mb-2"><strong>Dung lượng:</strong> {{ file_exists(storage_path('app/public/' . $book->file_path)) ? round(filesize(storage_path('app/public/' . $book->file_path)) / 1024 / 1024, 2) . ' MB' : 'Không xác định' }}</p>
                                     <p class="mb-2"><strong>Ngôn ngữ:</strong> Tiếng Việt</p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="mb-2"><strong>Bản quyền:</strong> Đã xác minh</p>
-                                    <p class="mb-2"><strong>Số trang:</strong> 320</p>
-                                    <p class="mb-2"><strong>Nhà xuất bản:</strong> BookNest</p>
+                                    <p class="mb-2"><strong>Số trang:</strong> {{ $book->page_count ?? 'Không xác định' }}</p>
+                                    <p class="mb-2"><strong>Nhà xuất bản:</strong> {{ $book->publisher->name ?? 'Đang cập nhật' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -234,41 +234,60 @@
 
                         <!-- Reviews List -->
                         <div class="col-lg-8">
-                            <!-- Write Review -->
+                            <!-- Write Review & Comment (Combined) -->
                             @auth
                                 <div class="card border-0 shadow-sm mb-4">
                                     <div class="card-body">
                                         @php
                                             $userRating = $book->ratings()->where('user_id', auth()->id())->first();
                                         @endphp
-                                        <h5 class="fw-bold mb-3">{{ $userRating ? 'Cập nhật đánh giá' : 'Viết đánh giá của bạn' }}</h5>
-                                        <form action="{{ route('books.rate', $book) }}" method="POST">
-                                            @csrf
-                                            <div class="mb-3">
-                                                <label class="form-label">Xếp hạng của bạn</label>
-                                                <div class="star-rating-input">
+                                        <h5 class="fw-bold mb-3">
+                                            <i class="bi bi-star-fill text-warning me-2"></i>Đánh giá & Bình luận
+                                        </h5>
+                                        
+                                        <!-- Star Rating -->
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Chọn số sao:</label>
+                                            <div class="star-rating-wrapper">
+                                                <div class="star-rating-input" id="starRatingContainer">
                                                     @for($i = 1; $i <= 5; $i++)
                                                         <i class="bi bi-star rating-star-icon {{ ($userRating && $userRating->stars >= $i) ? 'active' : '' }}" data-rating="{{ $i }}"></i>
                                                     @endfor
                                                     <input type="hidden" name="stars" id="ratingValue" value="{{ $userRating ? $userRating->stars : '5' }}">
                                                 </div>
+                                                <span class="ms-3 text-muted" id="ratingText">Tuyệt vời</span>
                                             </div>
+                                        </div>
+                                        
+                                        <!-- Comment Input -->
+                                        <form action="{{ route('books.rate', $book) }}" method="POST" id="combinedForm">
+                                            @csrf
+                                            <input type="hidden" name="stars" id="formRatingValue" value="{{ $userRating ? $userRating->stars : '5' }}">
+                                            <input type="hidden" name="comment" id="hiddenComment">
                                             <div class="mb-3">
-                                                <label class="form-label">Đánh giá của bạn</label>
-                                                <textarea name="comment" class="form-control" rows="3" placeholder="Chia sẻ trải nghiệm của bạn...">{{ $userRating ? $userRating->comment : '' }}</textarea>
+                                                <label class="form-label fw-bold">Viết bình luận của bạn:</label>
+                                                <textarea id="commentInput" class="form-control" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về tài liệu này..." maxlength="1000">{{ $userRating ? $userRating->comment : '' }}</textarea>
+                                                <div class="d-flex justify-content-between mt-1">
+                                                    <small class="text-muted"><span id="charCount">0</span>/1000 ký tự</small>
+                                                </div>
                                             </div>
-                                            <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+                                            <button type="submit" class="btn btn-warning fw-bold px-4" id="btnSubmitRating">
+                                                <i class="bi bi-send me-2"></i>Gửi đánh giá
+                                            </button>
                                         </form>
                                     </div>
                                 </div>
                             @else
                                 <div class="alert alert-info rounded-4 border-0 shadow-sm">
-                                    <i class="bi bi-info-circle me-2"></i> Vui lòng <a href="{{ route('login') }}" class="fw-bold">đăng nhập</a> để gửi đánh giá.
+                                    <i class="bi bi-info-circle me-2"></i> Vui lòng <a href="{{ route('login') }}" class="fw-bold">đăng nhập</a> để gửi đánh giá và bình luận.
                                 </div>
                             @endauth
 
                             <!-- Review List -->
                             <div id="reviewsList">
+                                <h5 class="fw-bold mb-3">
+                                    <i class="bi bi-chat-left-text me-2"></i>Danh sách đánh giá ({{ $ratingCount }})
+                                </h5>
                                 @forelse($book->ratings()->with('user')->latest()->get() as $rating)
                                     <div class="card review-card mb-3">
                                         <div class="card-body">
@@ -285,13 +304,13 @@
                                                 </div>
                                                 <span class="ms-auto text-muted small">{{ $rating->created_at->format('d/m/Y') }}</span>
                                             </div>
-                                            <p class="mb-0 text-muted">
-                                                {{ $rating->comment }}
+                                            <p class="mb-0 text-dark" style="line-height: 1.6;">
+                                                {{ $rating->comment ?: 'Người dùng không viết bình luận.' }}
                                             </p>
                                         </div>
                                     </div>
                                 @empty
-                                    <p class="text-center text-muted">Chưa có đánh giá nào.</p>
+                                    <p class="text-center text-muted">Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá!</p>
                                 @endforelse
                             </div>
                         </div>
@@ -481,39 +500,124 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Favorite
         const favBtn = document.getElementById('btn-favorite');
+        const favCount = document.getElementById('fav-count');
         if(favBtn) {
             favBtn.addEventListener('click', async function() {
                 const id = this.dataset.id;
                 try {
-                    const response = await fetch(`/my/books/${id}/favorite`, {
+                    const response = await fetch('{{ route('user.books.favorite', $book) }}', {
                         method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
                     });
+                    
+                    if(response.redirected) {
+                        window.location.href = response.url; // Nếu chưa đăng nhập sẽ bị redirect
+                        return;
+                    }
+                    
                     const data = await response.json();
                     if(data.status === 'added') {
                         this.innerHTML = '<i class="bi bi-heart-fill"></i> Đã thích';
                         this.classList.add('active');
-                    } else {
+                    } else if(data.status === 'removed') {
                         this.innerHTML = '<i class="bi bi-heart"></i> Yêu thích';
                         this.classList.remove('active');
+                    }
+                    
+                    if (favCount && data.count !== undefined) {
+                        favCount.innerHTML = `<strong>${data.count}</strong>`;
                     }
                 } catch(e) {}
             });
         }
 
-        // Rating Star
+        // Rating Star with Hover Effects
         const stars = document.querySelectorAll('.rating-star-icon');
         const ratingInput = document.getElementById('ratingValue');
+        const ratingText = document.getElementById('ratingText');
+        const ratingLabels = ['', 'Rất tệ', 'Tệ', 'Bình thường', 'Tốt', 'Tuyệt vời'];
+
+        function updateStars(rating) {
+            stars.forEach(s => {
+                const starValue = parseInt(s.dataset.rating);
+                if (starValue <= rating) {
+                    s.classList.add('active');
+                    s.style.color = '#ffc107';
+                    s.style.transform = 'scale(1.2)';
+                } else {
+                    s.classList.remove('active');
+                    s.style.color = '#ccc';
+                    s.style.transform = 'scale(1)';
+                }
+            });
+            if (ratingText) {
+                ratingText.textContent = ratingLabels[rating] || '';
+            }
+            if (ratingInput) ratingInput.value = rating;
+            const formRating = document.getElementById('formRatingValue');
+            if (formRating) formRating.value = rating;
+        }
+
+        // Initialize with current rating
+        if (ratingInput) {
+            updateStars(parseInt(ratingInput.value));
+        }
+
         stars.forEach(star => {
-            star.addEventListener('click', function() {
-                const rating = this.dataset.rating;
-                ratingInput.value = rating;
+            star.style.cursor = 'pointer';
+            star.style.transition = 'all 0.2s ease';
+            star.style.transformOrigin = 'center';
+
+            star.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.dataset.rating);
                 stars.forEach(s => {
-                    if(s.dataset.rating <= rating) s.classList.add('active');
-                    else s.classList.remove('active');
+                    const starValue = parseInt(s.dataset.rating);
+                    if (starValue <= rating) {
+                        s.classList.add('active');
+                        s.style.color = '#ffc107';
+                        s.style.transform = 'scale(1.2)';
+                    }
                 });
+                if (ratingText) {
+                    ratingText.textContent = ratingLabels[rating];
+                }
+            });
+
+            star.addEventListener('mouseleave', function() {
+                updateStars(parseInt(ratingInput?.value || 5));
+            });
+
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.dataset.rating);
+                updateStars(rating);
             });
         });
+
+        // Combined Form Submit
+        const combinedForm = document.getElementById('combinedForm');
+        if (combinedForm) {
+            const commentInput = document.getElementById('commentInput');
+            const hiddenComment = document.getElementById('hiddenComment');
+
+            combinedForm.addEventListener('submit', function(e) {
+                if (hiddenComment) {
+                    hiddenComment.value = commentInput.value;
+                }
+            });
+        }
+
+        // Comment Character Count
+        const commentInput = document.getElementById('commentInput');
+        const charCount = document.getElementById('charCount');
+        if (commentInput && charCount) {
+            charCount.textContent = commentInput.value.length;
+            commentInput.addEventListener('input', function() {
+                charCount.textContent = this.value.length;
+            });
+        }
 
         // AI Chat
         const toggle = document.getElementById('ai-chat-toggle');
@@ -589,29 +693,9 @@
                 }
                 messages.scrollTop = messages.scrollHeight;
             });
-        // Text-to-Speech (Read Aloud)
-        const btnReadAloud = document.getElementById('btn-read-aloud');
-        const voiceSettings = document.getElementById('voice-settings');
-        const voiceSelect = document.getElementById('voice-select');
-        const voiceRate = document.getElementById('voice-rate');
-        const synth = window.speechSynthesis;
-        let utterance = null;
-        let voices = [];
-
-        function loadVoices() {
-            voices = synth.getVoices();
-            voiceSelect.innerHTML = voices
-                .filter(v => v.lang.includes('vi') || v.lang.includes('en'))
-                .map(v => `<option value="${v.name}">${v.name}</option>`)
-                .join('');
         }
 
-        if (synth.onvoiceschanged !== undefined) {
-            synth.onvoiceschanged = loadVoices;
-        }
-        loadVoices();
-
-        // Advanced Text-to-Speech (AI Voice) - FIXED Version
+        // Text-to-Speech (Read Aloud) - FIXED Version
         const btnReadAloud = document.getElementById('btn-read-aloud');
         const readAloudText = document.getElementById('read-aloud-text');
         const voiceSettings = document.getElementById('voice-settings');
@@ -640,7 +724,6 @@
                 .join('');
         }
 
-        // Cố gắng load voices nhiều lần vì một số trình duyệt nạp chậm
         loadVoices();
         if (synth.onvoiceschanged !== undefined) {
             synth.onvoiceschanged = loadVoices;
@@ -656,7 +739,6 @@
 
         if (btnReadAloud) {
             btnReadAloud.addEventListener('click', async function() {
-                // Nếu đang nói -> Pause/Resume
                 if (synth.speaking) {
                     if (synth.paused) {
                         synth.resume();
@@ -668,10 +750,8 @@
                     return;
                 }
 
-                // Xóa mọi tiến trình cũ bị treo
                 synth.cancel();
 
-                // Hiện UI tiến trình
                 progressContainer.classList.remove('d-none');
                 updateProgress(0, 'Đang chuẩn bị AI...');
                 readAloudText.innerText = 'Đang quét...';
@@ -685,7 +765,7 @@
                     const pdf = await loadingTask.promise;
                     
                     let fullText = "";
-                    const pagesToScan = Math.min(pdf.numPages, 5); // Quét 5 trang đầu
+                    const pagesToScan = Math.min(pdf.numPages, 5);
                     
                     for (let i = 1; i <= pagesToScan; i++) {
                         updateProgress(10 + (i / pagesToScan * 40), `Đang lấy chữ trang ${i}/${pagesToScan}...`);
@@ -699,10 +779,8 @@
                         fullText = document.querySelector('.book-description').innerText;
                     }
 
-                    // Khởi tạo giọng nói
                     utterance = new SpeechSynthesisUtterance(fullText);
                     
-                    // Chọn giọng đọc
                     const selectedVoice = voices.find(v => v.name === voiceSelect.value);
                     if (selectedVoice) {
                         utterance.voice = selectedVoice;
@@ -719,7 +797,6 @@
                         updateProgress(50, 'Bắt đầu đọc...');
                         readAloudText.innerText = 'Đang phát';
                         voiceSettings.classList.remove('d-none');
-                        console.log('Speech started successfully');
                     };
 
                     utterance.onboundary = (event) => {
@@ -737,22 +814,17 @@
                     };
 
                     utterance.onerror = (e) => {
-                        console.error('Speech Error:', e);
                         readAloudText.innerText = 'Lỗi âm thanh';
                         updateProgress(0, 'Lỗi hệ thống giọng nói');
                     };
 
-                    // QUAN TRỌNG: Gọi speak
                     setTimeout(() => {
                         synth.speak(utterance);
                     }, 100);
 
                 } catch (error) {
-                    console.error('TTS Workflow Error:', error);
-                    updateProgress(0, 'Lỗi quét tệp');
                     readAloudText.innerText = 'Dùng mô tả';
                     
-                    // Fallback nhanh
                     const fallbackText = document.querySelector('.book-description').innerText;
                     const fallbackUtterance = new SpeechSynthesisUtterance(fallbackText);
                     fallbackUtterance.lang = 'vi-VN';
@@ -762,7 +834,6 @@
             });
         }
 
-        // Dừng khi đóng modal
         const readModal = document.getElementById('readOnlineModal');
         if (readModal) {
             readModal.addEventListener('hidden.bs.modal', () => {
@@ -772,7 +843,12 @@
     });
 </script>
 <style>
-    .rating-star-icon { font-size: 1.5rem; cursor: pointer; color: #ccc; transition: 0.2s; }
-    .rating-star-icon.active { color: #ffc107; }
+    .rating-star-icon { font-size: 2rem; cursor: pointer; color: #e0e0e0; transition: all 0.2s ease; margin-right: 2px; }
+    .rating-star-icon.active { color: #ffc107; filter: drop-shadow(0 0 3px rgba(255, 193, 7, 0.5)); }
+    .rating-star-icon:hover { transform: scale(1.15); }
+    .star-rating-wrapper { display: flex; align-items: center; gap: 10px; }
+    .review-card { transition: all 0.3s ease; border-left: 3px solid #ffc107; }
+    .review-card:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important; transform: translateY(-2px); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 @endsection

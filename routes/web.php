@@ -82,6 +82,7 @@ Route::middleware('auth')->prefix('my')->name('user.')->group(function () {
     Route::post('books/{book}/favorite', [App\Http\Controllers\BookController::class, 'toggleFavorite'])->name('books.favorite');
     Route::get('wishlist', [App\Http\Controllers\UserController::class, 'wishlist'])->name('wishlist');
     Route::post('books/{book}/comment', [App\Http\Controllers\CommentController::class, 'store'])->name('books.comment');
+    Route::delete('comments/{comment}', [App\Http\Controllers\CommentController::class, 'destroy'])->name('delete.comment');
 });
 
 Route::get('/books/{book}/download', [App\Http\Controllers\BookController::class, 'download'])->name('books.download');

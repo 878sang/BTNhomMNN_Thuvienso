@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('links', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->string('url');
-            $table->integer('position')->default(0);
-            $table->boolean('status')->default(true);
-            $table->timestamps();
+        Schema::table('books', function (Blueprint $table) {
+            $table->integer('page_count')->nullable()->after('download_count');
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('links');
+        Schema::table('books', function (Blueprint $table) {
+            $table->dropColumn('page_count');
+        });
     }
 };
