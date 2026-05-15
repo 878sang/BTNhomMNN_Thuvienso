@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\Book;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class AiChatController extends Controller
 {
@@ -15,6 +18,7 @@ class AiChatController extends Controller
     {
         $request->validate([
             'message' => 'required|string',
+            'book_id' => 'required|integer',
             'book_title' => 'required|string',
             'book_description' => 'nullable|string',
             'book_author' => 'nullable|string',
@@ -22,7 +26,7 @@ class AiChatController extends Controller
 
         $apiKey = env('GEMINI_API_KEY');
 
-        if (!$apiKey || $apiKey === 'your_gemini_api_key_here') {
+        if (!$apiKey) {
             return response()->json([
                 'error' => 'Gemini API Key chưa được cấu hình. Vui lòng liên hệ admin.'
             ], 500);
@@ -33,19 +37,33 @@ class AiChatController extends Controller
         $bookDesc = $request->input('book_description', 'Không có mô tả.');
         $bookAuthor = $request->input('book_author', 'Ẩn danh');
 
-        $systemPrompt = "Bạn là một trợ lý AI thông minh tích hợp trong website thư viện số 'BookNest'. " .
-                        "Bạn đang hỗ trợ người dùng tìm hiểu về cuốn sách: '$bookTitle' của tác giả '$bookAuthor'. " .
-                        "Mô tả của cuốn sách: $bookDesc. " .
-                        "Hãy trả lời các câu hỏi của người dùng một cách thân thiện, chuyên nghiệp và dựa trên thông tin cuốn sách này. " .
-                        "Nếu câu hỏi không liên quan đến cuốn sách, hãy khéo léo nhắc nhở người dùng và vẫn trả lời ngắn gọn nếu có thể.";
+        $systemPrompt = "Bạn là một trợ lý AI thông minh tại 'BookNest'. " .
+                        "Nhiệm vụ: Hỗ trợ tìm hiểu về sách '$bookTitle' ($bookAuthor) và trả lời mọi câu hỏi khác. " .
+                        "PHONG CÁCH: Trả lời TRỰC TIẾP, NGẮN GỌN, đi thẳng vào vấn đề. " .
+                        "KHÔNG chào hỏi dài dòng. Hãy bắt đầu bằng cụm từ 'Mình xin trả lời câu hỏi của bạn là: ' hoặc đi thẳng vào nội dung chính. " .
+                        "Dựa vào tài liệu đính kèm nếu có để trả lời chính xác nhất.";
+
+        $bookId = $request->input('book_id');
+        $fileUri = $this->getGeminiFileUri($bookId, $apiKey);
 
         try {
-            $response = Http::post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}", [
+            $parts = [
+                ['text' => "System Context: $systemPrompt\n\nUser Question: $message"]
+            ];
+
+            if ($fileUri) {
+                $parts[] = [
+                    'file_data' => [
+                        'mime_type' => 'application/pdf',
+                        'file_uri' => $fileUri
+                    ]
+                ];
+            }
+
+            $response = Http::post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
                 'contents' => [
                     [
-                        'parts' => [
-                            ['text' => "System Context: $systemPrompt\n\nUser Question: $message"]
-                        ]
+                        'parts' => $parts
                     ]
                 ]
             ]);
@@ -70,5 +88,65 @@ class AiChatController extends Controller
                 'error' => 'Lỗi hệ thống: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Get or upload book file to Gemini File API.
+     */
+    private function getGeminiFileUri($bookId, $apiKey)
+    {
+        $cacheKey = "gemini_file_uri_{$bookId}";
+        
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
+        }
+
+        $book = Book::find($bookId);
+        if (!$book) return null;
+
+        // Ưu tiên bản PDF nếu có
+        $filePath = $book->pdf_version_path ?: $book->file_path;
+        $fullPath = storage_path("app/public/{$filePath}");
+
+        if (!file_exists($fullPath)) {
+            Log::warning("File not found for Gemini upload: {$fullPath}");
+            return null;
+        }
+
+        try {
+            // 1. Upload file
+            $uploadResponse = Http::withHeaders([
+                'X-Goog-Upload-Protocol' => 'multipart',
+            ])->attach(
+                'metadata', 
+                json_encode(['file' => ['display_name' => "Book_{$bookId}"]]), 
+                'metadata.json', 
+                ['Content-Type' => 'application/json']
+            )->attach(
+                'file', 
+                file_get_contents($fullPath), 
+                basename($fullPath),
+                ['Content-Type' => 'application/pdf']
+            )->post("https://generativelanguage.googleapis.com/upload/v1beta/files?key={$apiKey}");
+
+            if (!$uploadResponse->successful()) {
+                Log::error("Gemini File Upload Failed: " . $uploadResponse->body());
+                return null;
+            }
+
+            $fileData = $uploadResponse->json();
+            $fileUri = $fileData['file']['uri'] ?? null;
+
+            if ($fileUri) {
+                // Cache URI trong 47 giờ (Gemini xóa sau 48 giờ)
+                Cache::put($cacheKey, $fileUri, now()->addHours(47));
+                return $fileUri;
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Gemini File Upload Exception: " . $e->getMessage());
+        }
+
+        return null;
     }
 }

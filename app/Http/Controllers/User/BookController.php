@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 
 class BookController extends Controller
 {
+    use \App\Traits\HandlesBookUploads;
+
     public function index()
     {
         $books = Book::where('user_id', Auth::id())->latest()->paginate(10);
@@ -48,9 +50,25 @@ class BookController extends Controller
         if ($request->hasFile('file_path')) {
             $file = $request->file('file_path');
             $data['file_path'] = $file->store('documents', 'public');
-            
-            // Note: Conversion and preview logic could be extracted to a Service or Job
-            // For now, I'll assume Admin manages the conversion/preview or it's handled here similarly.
+            $extension = $file->getClientOriginalExtension();
+            $fullPath = storage_path('app/public/' . $data['file_path']);
+            $pdfPath = $fullPath;
+
+            // If Word, convert to PDF immediately
+            if (in_array($extension, ['doc', 'docx'])) {
+                $pdfFileName = 'converted_' . pathinfo($data['file_path'], PATHINFO_FILENAME) . '.pdf';
+                $pdfStoragePath = storage_path('app/public/documents/' . $pdfFileName);
+                if ($this->convertWordToPdf($fullPath, $pdfStoragePath)) {
+                    $data['pdf_version_path'] = 'documents/' . $pdfFileName;
+                    $pdfPath = $pdfStoragePath;
+                }
+            }
+
+            // Generate preview from PDF (either original or converted)
+            if ($extension == 'pdf' || isset($data['pdf_version_path'])) {
+                $previewFileName = 'preview_' . pathinfo($data['file_path'], PATHINFO_FILENAME) . '.pdf';
+                $data['preview_path'] = $this->generatePreview($pdfPath, $previewFileName);
+            }
         }
 
         Book::create($data);

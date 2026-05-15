@@ -14,7 +14,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <!-- Custom Template CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
@@ -23,12 +25,20 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+        :root {
+            --themeColor: #ED553B;
+            --secondaryColor: #3b368c;
+        }
         body {
             font-family: 'Inter', sans-serif;
+            color: #333;
+        }
+        .text-orange {
+            color: var(--themeColor) !important;
         }
         .btn-orange {
-            background-color: #ED553B;
-            border-color: #ED553B;
+            background-color: var(--themeColor);
+            border-color: var(--themeColor);
             color: white;
         }
         .btn-orange:hover {
@@ -36,27 +46,75 @@
             border-color: #d94a32;
             color: white;
         }
-        .text-orange {
-            color: #ED553B !important;
-        }
         .bg-orange-light {
             background-color: rgba(237, 85, 59, 0.1);
         }
         .btn-outline-orange {
-            color: #ED553B;
-            border-color: #ED553B;
+            color: var(--themeColor);
+            border-color: var(--themeColor);
         }
         .btn-outline-orange:hover {
-            background-color: #ED553B;
+            background-color: var(--themeColor);
             color: white;
         }
+        /* Top bar */
+        .top-bar {
+            background-color: var(--secondaryColor);
+            font-size: 0.85rem;
+        }
+        .top-bar .social-icons a {
+            color: #fff;
+            margin-left: 12px;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .top-bar .social-icons a:hover {
+            opacity: 0.8;
+        }
+        /* Navbar */
         .navbar-brand img {
             transition: transform 0.3s ease;
         }
         .navbar-brand:hover img {
             transform: scale(1.1);
         }
+        .search-bar input {
+            border-radius: 20px 0 0 20px;
+            border-right: none;
+            border-color: #eee;
+        }
+        .search-bar button {
+            border-radius: 0 20px 20px 0;
+            background-color: #f8f8f8;
+            border: 1px solid #eee;
+            border-left: none;
+        }
+        .nav-links .nav-link {
+            font-weight: 500;
+            color: #444 !important;
+            padding: 0.5rem 1.2rem;
+            transition: color 0.2s;
+        }
+        .nav-links .nav-link:hover, .nav-links .nav-link.active {
+            color: var(--themeColor) !important;
+        }
+        .bg-orange {
+            background-color: var(--themeColor) !important;
+        }
+        .blur-30 {
+            filter: blur(30px);
+        }
+        .bg-success-soft {
+            background-color: rgba(40, 167, 69, 0.1) !important;
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        .hover-up:hover {
+            transform: translateY(-10px);
+        }
     </style>
+    @yield('css')
 </head>
 <body class="antialiased">
     

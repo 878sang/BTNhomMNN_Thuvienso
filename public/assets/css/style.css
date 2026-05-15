@@ -1,6 +1,10 @@
-/* License ID: DEVOMATE-SRC-20260306-D79LJVLQUB | sangnguyenduy15@gmail.com | 2026-03-06 19:16:40 */
+/* License ID: DEVOMATE-SRC-20260306-QTHF1HIJPR | hoanlinhk2@gmail.com | 2026-03-06 15:37:08 */
    :root {
        --themeColor: #ED553B
+   }
+
+   .text-orange {
+       color: var(--themeColor) !important;
    }
 
    /* Top bar */
@@ -556,4 +560,3 @@
   transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
-

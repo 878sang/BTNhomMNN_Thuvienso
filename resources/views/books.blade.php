@@ -2,169 +2,349 @@
 
 @section('title', 'Cửa hàng sách - Bộ sưu tập tri thức')
 
+@section('css')
+<style>
+    /* Ultra Premium Filter Styles */
+    .filter-sidebar .card {
+        border-radius: 24px;
+        background: #ffffff;
+        border: 1px solid #f0f0f0 !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03) !important;
+    }
+
+    .filter-section {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .filter-section:last-child {
+        border-bottom: none;
+    }
+
+    .filter-title {
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        margin-bottom: 1.25rem;
+        color: #999;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .filter-title i {
+        color: var(--themeColor, #ED553B);
+        font-size: 1.1rem;
+    }
+
+    /* Premium Search Bar */
+    .premium-search-box {
+        background: #f1f3f5;
+        border-radius: 16px;
+        padding: 8px 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+    }
+
+    .premium-search-box:focus-within {
+        background: #fff;
+        border-color: var(--themeColor, #ED553B);
+        box-shadow: 0 8px 20px rgba(237, 85, 59, 0.1);
+    }
+
+    .premium-search-box input {
+        font-size: 0.95rem;
+        color: #444;
+        font-weight: 500;
+    }
+
+    .search-submit-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        background: var(--themeColor, #ED553B);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(237, 85, 59, 0.2);
+    }
+
+    .search-submit-btn:hover {
+        transform: scale(1.05);
+        background: #d8432a;
+    }
+
+    /* Custom Filter List */
+    .filter-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .filter-item-radio {
+        display: none;
+    }
+
+    .filter-item-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #555;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .filter-item-label:hover {
+        background: #fff5f3;
+        color: var(--themeColor, #ED553B);
+    }
+
+    .filter-item-radio:checked + .filter-item-label {
+        background: var(--themeColor, #ED553B);
+        color: white !important;
+    }
+
+    .filter-item-radio:checked + .filter-item-label .count-badge {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .count-badge {
+        font-size: 0.75rem;
+        background: #f1f3f5;
+        color: #888;
+        padding: 2px 8px;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .filter-dot {
+        width: 14px;
+        height: 14px;
+        border: 2px solid #ddd;
+        border-radius: 50%;
+        margin-right: 12px;
+        position: relative;
+        transition: all 0.3s;
+    }
+
+    .filter-item-radio:checked + .filter-item-label .filter-dot {
+        border-color: white;
+        background: white;
+    }
+
+    .filter-item-radio:checked + .filter-item-label .filter-dot::after {
+        content: '';
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: var(--themeColor, #ED553B);
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    /* Format Tags */
+    .format-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .format-pill {
+        background: white;
+        border: 1px solid #eee;
+        color: #666;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .format-pill:hover {
+        border-color: var(--themeColor, #ED553B);
+        color: var(--themeColor, #ED553B);
+        background: #fff5f3;
+        transform: translateY(-2px);
+    }
+
+    /* Clear Button */
+    .btn-clear-filters {
+        background: #f8f9fa;
+        color: #888;
+        border: none;
+        font-weight: 700;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 12px;
+        border-radius: 14px;
+        transition: all 0.3s;
+    }
+
+    .btn-clear-filters:hover {
+        background: #ffefec;
+        color: var(--themeColor, #ED553B);
+    }
+
+    .view-toggle {
+        border: none;
+        background: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 10px;
+        transition: all 0.3s;
+        color: #777;
+    }
+
+    .view-toggle.active {
+        background: var(--themeColor, #ED553B);
+        color: white;
+        box-shadow: 0 4px 10px rgba(237, 85, 59, 0.3);
+    }
+
+    .book-card-grid {
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        border-radius: 20px !important;
+        overflow: hidden;
+    }
+
+    .book-card-grid:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+    }
+</style>
+@endsection
+
 @section('content')
-    <div class="py-4 bg-light border-bottom">
+    <!-- Breadcrumb -->
+    <div class="bg-light py-3">
         <div class="container">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-orange">Trang chủ</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Cửa hàng sách</li>
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Sách</li>
                 </ol>
             </nav>
         </div>
     </div>
 
-    <!-- Books Section -->
-    <section class="books-section py-5 bg-white">
+    <!-- Books Listing Section -->
+    <section class="py-5">
         <div class="container">
             <div class="row">
-                <!-- Sidebar Filters -->
+                <!-- Left: Sidebar Filter -->
                 <div class="col-lg-3 mb-4">
-                    <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 100px; z-index: 100;">
-                        <form action="{{ route('books.index') }}" method="GET">
-                            <h5 class="fw-bold mb-4 text-dark border-bottom pb-2">Bộ lọc</h5>
-                            
-                            <!-- Search -->
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-uppercase text-muted">Tìm kiếm</label>
-                                <div class="input-group">
-                                    <input type="text" name="search" class="form-control border-end-0" placeholder="Tên sách, tác giả..." value="{{ request('search') }}">
-                                    <button class="btn btn-outline-secondary border-start-0" type="submit"><i class="bi bi-search"></i></button>
+                    <button class="btn btn-outline-primary w-100 d-lg-none mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterSidebar">
+                        <i class="bi bi-sliders me-2"></i> Bộ lọc
+                    </button>
+
+                    <div class="offcanvas-lg offcanvas-start filter-sidebar" tabindex="-1" id="filterSidebar">
+                        <div class="offcanvas-header border-bottom d-lg-none">
+                            <h5 class="offcanvas-title fw-bold">Bộ lọc tìm kiếm</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#filterSidebar"></button>
+                        </div>
+                        <div class="offcanvas-body p-0">
+                            <div class="card border-0 shadow-sm w-100">
+                                <div class="card-body p-0">
+                                    @include('partials.books-filter-form')
                                 </div>
                             </div>
-
-                            <!-- Category -->
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold text-uppercase text-muted">Danh mục</label>
-                                <div class="category-list mt-2" style="max-height: 300px; overflow-y: auto;">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="category" value="" id="catAll" {{ !request('category') ? 'checked' : '' }} onchange="this.form.submit()">
-                                        <label class="form-check-label d-flex justify-content-between w-100 cursor-pointer" for="catAll">
-                                            <span>Tất cả</span>
-                                        </label>
-                                    </div>
-                                    @foreach($categories as $category)
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="category" value="{{ $category->slug }}" id="cat{{ $category->id }}" {{ request('category') == $category->slug ? 'checked' : '' }} onchange="this.form.submit()">
-                                        <label class="form-check-label d-flex justify-content-between w-100 cursor-pointer" for="cat{{ $category->id }}">
-                                            <span class="{{ request('category') == $category->slug ? 'text-orange fw-bold' : '' }}">{{ $category->name }}</span>
-                                            <span class="text-muted small">({{ $category->books_count }})</span>
-                                        </label>
-                                    </div>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            @if(request('search') || request('category'))
-                                <a href="{{ route('books.index') }}" class="btn btn-light w-100 mt-2 text-muted small">Xóa bộ lọc <i class="bi bi-x-circle ms-1"></i></a>
-                            @endif
-                        </form>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Books Grid -->
+                <!-- Right: Book Grid -->
                 <div class="col-lg-9">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="fw-bold mb-0">
-                            @if(request('search'))
-                                Kết quả tìm kiếm cho "{{ request('search') }}"
-                            @elseif(request('category'))
-                                @php $currentCat = $categories->where('slug', request('category'))->first(); @endphp
-                                Danh mục: {{ $currentCat->name ?? 'Không xác định' }}
-                            @else
-                                Tất cả sách & tài liệu
-                            @endif
-                            <small class="text-muted fw-normal ms-2">({{ $books->total() }} kết quả)</small>
-                        </h4>
-                        <div class="d-flex align-items-center">
-                            <span class="text-muted small me-2 d-none d-md-inline">Sắp xếp theo:</span>
-                            <select class="form-select form-select-sm border-0 bg-light" style="width: auto;">
-                                <option>Mới nhất</option>
-                                <option>Giá thấp đến cao</option>
-                                <option>Giá cao đến thấp</option>
-                                <option>Phổ biến nhất</option>
+                    <!-- Toolbar -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                        <div>
+                            <h4 class="fw-bold mb-1">
+                                @if(request('search'))
+                                    Kết quả cho "{{ request('search') }}"
+                                @elseif(request('category'))
+                                    @php $currentCat = $categories->where('slug', request('category'))->first(); @endphp
+                                    Danh mục: {{ $currentCat->name ?? 'Tất cả' }}
+                                @else
+                                    Tất cả tài liệu số
+                                @endif
+                            </h4>
+                            <p class="text-muted mb-0 small">Hiển thị {{ $books->firstItem() ?? 0 }}-{{ $books->lastItem() ?? 0 }} trong tổng số {{ $books->total() }} kết quả</p>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <select class="form-select border-0 bg-light rounded-pill px-3 py-2" style="width: auto;" onchange="window.location.href=this.value">
+                                <option value="{{ request()->fullUrlWithQuery(['sort' => 'newest']) }}">Sắp xếp: Mới nhất</option>
+                                <option value="{{ request()->fullUrlWithQuery(['sort' => 'oldest']) }}">Sắp xếp: Cũ nhất</option>
+                                <option value="{{ request()->fullUrlWithQuery(['sort' => 'price_asc']) }}">Giá: Thấp đến cao</option>
+                                <option value="{{ request()->fullUrlWithQuery(['sort' => 'price_desc']) }}">Giá: Cao đến thấp</option>
                             </select>
+                            <div class="d-flex gap-1">
+                                <button class="view-toggle active"><i class="bi bi-grid-fill"></i></button>
+                                <button class="view-toggle"><i class="bi bi-list"></i></button>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Grid -->
                     <div class="row g-4">
                         @forelse($books as $book)
-                            <div class="col-md-4 col-sm-6">
-                                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all book-card-v2">
-                                    <div class="position-relative">
-                                        <a href="{{ route('books.show', $book->slug) }}">
-                                            <img src="{{ $book->thumbnail ? asset('storage/' . $book->thumbnail) : 'https://via.placeholder.com/400x600' }}" class="card-img-top rounded-top" alt="{{ $book->title }}" style="height: 320px; object-fit: cover;">
-                                        </a>
-                                        <div class="position-absolute top-0 end-0 p-2">
-                                            <button class="btn btn-white btn-sm rounded-circle shadow-sm"><i class="bi bi-heart"></i></button>
-                                        </div>
-                                        @if($book->price_points == 0)
-                                            <div class="position-absolute bottom-0 start-0 m-2">
-                                                <span class="badge bg-success shadow-sm">Miễn phí</span>
-                                            </div>
-                                        @endif
+                        <div class="col-md-4 col-sm-6">
+                            <div class="card h-100 border-0 shadow-sm book-card-grid">
+                                <div class="position-relative overflow-hidden" style="height: 250px;">
+                                    <a href="{{ route('books.show', $book->slug) }}">
+                                        <img src="{{ $book->thumbnail ? asset('storage/' . $book->thumbnail) : 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400' }}" 
+                                             class="card-img-top h-100 w-100 object-fit-cover" alt="{{ $book->title }}">
+                                    </a>
+                                    <span class="badge bg-danger position-absolute top-0 start-0 m-2">{{ $book->price_points == 0 ? 'FREE' : '-' . rand(10, 30) . '%' }}</span>
+                                    <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm" title="Yêu thích">
+                                        <i class="bi bi-heart"></i>
+                                    </button>
+                                    <div class="quick-view-btn position-absolute bottom-0 start-0 end-0 p-2 text-center" style="background: rgba(255,255,255,0.9);">
+                                        <a href="{{ route('books.show', $book->slug) }}" class="btn btn-sm btn-primary rounded-pill w-100">Xem chi tiết</a>
                                     </div>
-                                    <div class="card-body p-3">
-                                        <div class="mb-1">
-                                            <a href="{{ route('books.index', ['category' => $book->category->slug]) }}" class="text-orange text-decoration-none x-small fw-bold text-uppercase">{{ $book->category->name }}</a>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-orange small fw-bold mb-1 text-uppercase">{{ $book->category->name }}</p>
+                                    <h6 class="fw-bold mb-1 text-truncate">
+                                        <a href="{{ route('books.show', $book->slug) }}" class="text-dark text-decoration-none">{{ $book->title }}</a>
+                                    </h6>
+                                    <p class="text-muted small mb-2">{{ $book->author->name ?? 'Tác giả ẩn danh' }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="text-orange fw-bold">{{ number_format($book->price_points) }} điểm</span>
                                         </div>
-                                        <h6 class="fw-bold mb-1 text-truncate-2" style="height: 2.8rem; line-height: 1.4rem;">
-                                            <a href="{{ route('books.show', $book->slug) }}" class="text-dark text-decoration-none">{{ $book->title }}</a>
-                                        </h6>
-                                        <p class="text-muted small mb-3">
-                                            <i class="bi bi-person me-1"></i> {{ $book->author->name ?? 'Tác giả ẩn danh' }}
-                                        </p>
-                                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                            <div>
-                                                @if($book->price_points > 0)
-                                                    <span class="fw-bold text-dark fs-5">{{ number_format($book->price_points) }}</span>
-                                                    <span class="text-muted small">điểm</span>
-                                                @else
-                                                    <span class="fw-bold text-success">0 điểm</span>
-                                                @endif
-                                            </div>
-                                            <a href="{{ route('books.show', $book->slug) }}" class="btn btn-sm btn-orange rounded-pill px-3">Chi tiết</a>
+                                        <div class="text-warning small">
+                                            <i class="bi bi-star-fill"></i> 4.5
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
                         @empty
-                            <div class="col-12 py-5 text-center">
-                                <img src="https://illustrations.popsy.co/amber/no-results.svg" alt="No results" style="width: 200px;" class="mb-4">
-                                <h5 class="text-muted">Rất tiếc, không tìm thấy tài liệu nào phù hợp.</h5>
-                                <a href="{{ route('books.index') }}" class="btn btn-orange mt-3">Xem tất cả sách</a>
-                            </div>
+                        <div class="col-12 text-center py-5">
+                            <i class="bi bi-search display-1 text-muted"></i>
+                            <h5 class="mt-3">Không tìm thấy sách nào</h5>
+                            <p class="text-muted">Vui lòng thử lại với từ khóa khác.</p>
+                        </div>
                         @endforelse
                     </div>
 
                     <!-- Pagination -->
                     <div class="mt-5 d-flex justify-content-center">
-                        {{ $books->links() }}
+                        {{ $books->appends(request()->query())->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <style>
-        .hover-shadow:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-        }
-        .transition-all {
-            transition: all 0.3s ease;
-        }
-        .text-truncate-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .x-small {
-            font-size: 0.7rem;
-        }
-        .cursor-pointer {
-            cursor: pointer;
-        }
-    </style>
 @endsection

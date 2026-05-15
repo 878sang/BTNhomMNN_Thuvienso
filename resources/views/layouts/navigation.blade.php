@@ -1,5 +1,5 @@
 <div class="top-bar text-white py-2 px-3 d-flex justify-content-between align-items-center">
-    <div><i class="bi bi-telephone me-2"></i> +91 7397807795</div>
+    <div><i class="bi bi-telephone me-2"></i> 1900 1234</div>
     <div class="social-icons">
         <a href="#"><i class="bi bi-facebook"></i></a>
         <a href="#"><i class="bi bi-instagram"></i></a>
@@ -13,31 +13,29 @@
         <!-- Logo -->
         <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
             <img src="{{ asset('assets/images/sample logo 1.png') }}" class="me-2" alt="Logo" width="40px">
-            <span class="fw-bold text-dark d-none d-sm-inline">BookNest</span>
+            <span class="fw-bold text-orange d-none d-sm-inline">Thư Viện Số</span>
         </a>
 
         <!-- Search Bar -->
-        <form action="{{ route('books.index') }}" method="GET" class="d-none d-md-flex mx-auto search-bar" style="max-width: 400px; width: 100%;">
-            <input class="form-control" type="search" name="search" placeholder="Tìm kiếm sách..." value="{{ request('search') }}" />
-            <button class="btn btn-orange text-white" type="submit"><i class="bi bi-search"></i></button>
+        <form action="{{ route('books.index') }}" method="GET" class="d-none d-md-flex mx-auto search-bar" style="max-width: 450px; width: 100%;">
+            <input class="form-control" type="search" name="search" placeholder="Tìm kiếm tài liệu, sách, tác giả..." value="{{ request('search') }}" />
+            <button class="btn" type="submit"><i class="bi bi-search"></i></button>
         </form>
 
-        <div class="d-flex align-items-center gap-2 gap-md-3">
+        <div class="d-flex align-items-center gap-3">
             @auth
                 <div class="dropdown">
-                    <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle fs-5 me-1"></i>
-                        <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
-                        <span class="badge bg-orange-light text-orange ms-2 d-none d-lg-inline-block">
-                            <i class="bi bi-coin"></i> {{ number_format(Auth::user()->points) }} điểm
-                        </span>
+                    <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person fs-5"></i>
+                        <span class="d-none d-lg-inline ms-1">{{ Auth::user()->name }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
+                        <li class="px-3 py-2 border-bottom d-lg-none">
+                            <span class="fw-bold text-orange"><i class="bi bi-coin"></i> {{ number_format(Auth::user()->points) }}</span>
+                        </li>
                         <li><a class="dropdown-item py-2" href="{{ route('dashboard') }}"><i class="bi bi-speedometer2 me-2"></i> Bảng điều khiển</a></li>
                         <li><a class="dropdown-item py-2" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2"></i> Thông tin cá nhân</a></li>
                         <li><a class="dropdown-item py-2" href="{{ route('user.transactions') }}"><i class="bi bi-wallet2 me-2"></i> Lịch sử giao dịch</a></li>
-                        <li><a class="dropdown-item py-2" href="{{ route('user.wishlist') }}"><i class="bi bi-heart me-2"></i> Tài liệu yêu thích</a></li>
-                        <li><a class="dropdown-item py-2" href="{{ route('user.books.index') }}"><i class="bi bi-cloud-upload me-2"></i> Tài liệu của tôi</a></li>
                         @if(Auth::user()->role === 'admin')
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item py-2 text-danger" href="{{ route('admin.dashboard') }}"><i class="bi bi-shield-lock me-2"></i> Trang quản trị</a></li>
@@ -53,16 +51,19 @@
                         </li>
                     </ul>
                 </div>
+                <div class="d-none d-lg-block text-orange fw-bold">
+                    <i class="bi bi-coin"></i> {{ number_format(Auth::user()->points) }}
+                </div>
             @else
                 <a href="{{ route('login') }}" class="nav-link d-flex align-items-center">
-                    <i class="bi bi-person fs-5 me-1"></i> 
-                    <span class="d-none d-md-inline">Tài khoản</span>
+                    <i class="bi bi-person fs-5"></i>
+                    <span class="d-none d-md-inline ms-1">Tài khoản</span>
                 </a>
             @endauth
 
             <a href="{{ route('cart') }}" class="nav-link position-relative">
                 <i class="bi bi-cart fs-5"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-orange text-white" style="font-size: 0.6rem;">0</span>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">0</span>
             </a>
             
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navLinks">
@@ -83,8 +84,11 @@
                 <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}">Giới thiệu</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('books.*') ? 'active' : '' }}" href="{{ route('books.index') }}">Cửa hàng</a>
+                <a class="nav-link {{ request()->routeIs('books.*') ? 'active' : '' }}" href="{{ route('books.index') }}">Sách</a>
             </li> 
+            <li class="nav-item">
+                <a class="nav-link" href="#">Tác giả</a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" href="{{ route('contact') }}">Liên hệ</a>
             </li>
