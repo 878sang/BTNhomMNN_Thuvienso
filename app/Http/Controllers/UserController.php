@@ -21,7 +21,20 @@ class UserController extends Controller
 
     public function wishlist()
     {
-        $favorites = auth()->user()->favorites()->with('book.author')->latest()->paginate(12);
+        $favorites = auth()->user()->favorites()
+            ->with(['book.author', 'book.category'])
+            ->where('status', 'active')
+            ->latest()
+            ->paginate(12);
         return view('user.wishlist', compact('favorites'));
+    }
+
+    public function purchased()
+    {
+        $purchasedBooks = auth()->user()->purchasedBooks()
+            ->with(['author', 'category'])
+            ->latest('pivot_created_at')
+            ->paginate(12);
+        return view('user.purchased', compact('purchasedBooks'));
     }
 }

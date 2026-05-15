@@ -26,11 +26,14 @@
                 <a href="{{ route('user.profile') }}" class="list-group-item list-group-item-action py-3">
                     <i class="bi bi-person-circle me-2"></i> Hồ sơ của tôi
                 </a>
+                <a href="{{ route('user.purchased') }}" class="list-group-item list-group-item-action py-3">
+                    <i class="bi bi-bag-check-fill me-2"></i> Tài liệu đã mua
+                </a>
                 <a href="{{ route('user.transactions') }}" class="list-group-item list-group-item-action py-3 active border-orange" style="background-color: #ED553B; border-color: #ED553B;">
                     <i class="bi bi-wallet2 me-2"></i> Giao dịch
                 </a>
                 <a href="{{ route('wishlist') }}" class="list-group-item list-group-item-action py-3">
-                    <i class="bi bi-heart me-2"></i> Danh sách yêu thích
+                    <i class="bi bi-heart-fill me-2"></i> Danh sách yêu thích
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

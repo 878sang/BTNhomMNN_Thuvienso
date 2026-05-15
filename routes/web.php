@@ -23,16 +23,16 @@ Route::view('/contact', 'contact')->name('contact');
 
 Route::middleware('auth')->group(function () {
     Route::view('/cart', 'cart')->name('cart');
-    Route::view('/wishlist', 'wishlist')->name('wishlist');
 });
 
 Route::middleware('auth')->group(function () {
     Route::post('/books/{book}/purchase', [App\Http\Controllers\BookController::class, 'purchase'])->name('books.purchase');
     Route::get('/recharge', [App\Http\Controllers\PaymentController::class, 'recharge'])->name('payment.recharge');
     Route::post('/checkout', [App\Http\Controllers\PaymentController::class, 'checkout'])->name('payment.checkout');
-    
+
     Route::get('/my-profile', [App\Http\Controllers\UserController::class, 'profile'])->name('user.profile');
     Route::get('/my-transactions', [App\Http\Controllers\UserController::class, 'transactions'])->name('user.transactions');
+    Route::get('/my-purchased', [App\Http\Controllers\UserController::class, 'purchased'])->name('user.purchased');
     Route::post('/books/{book}/rate', [App\Http\Controllers\BookRatingController::class, 'store'])->name('books.rate');
 });
 
@@ -80,10 +80,13 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
 Route::middleware('auth')->prefix('my')->name('user.')->group(function () {
     Route::resource('books', App\Http\Controllers\User\BookController::class);
     Route::post('books/{book}/favorite', [App\Http\Controllers\BookController::class, 'toggleFavorite'])->name('books.favorite');
-    Route::get('wishlist', [App\Http\Controllers\UserController::class, 'wishlist'])->name('wishlist');
     Route::post('books/{book}/comment', [App\Http\Controllers\CommentController::class, 'store'])->name('books.comment');
     Route::delete('comments/{comment}', [App\Http\Controllers\CommentController::class, 'destroy'])->name('delete.comment');
 });
+
+Route::get('/wishlist', [App\Http\Controllers\UserController::class, 'wishlist'])
+    ->name('wishlist')
+    ->middleware('auth');
 
 Route::get('/books/{book}/download', [App\Http\Controllers\BookController::class, 'download'])->name('books.download');
 Route::get('/books/{book}/preview-pdf', [App\Http\Controllers\BookController::class, 'previewPdf'])->name('books.preview_pdf');
