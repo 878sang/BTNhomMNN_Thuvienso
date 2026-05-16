@@ -35,21 +35,21 @@ class BookController extends Controller
     public function show($slug)
     {
         $book = Book::where('slug', $slug)->where('status', 'approved')
-            ->with(['author', 'category', 'publisher', 'comments.user', 'comments.replies.user'])
+            ->with(['author', 'category', 'publisher', 'ratings.user'])
             ->firstOrFail();
         
         $book->increment('view_count');
 
         $hasPurchased = ($book->price_points == 0);
         $isFavorited = false;
-        $userComment = null;
+        $userRating = null;
         if (auth()->check()) {
             $hasPurchased = $hasPurchased || auth()->user()->purchasedBooks()->where('book_id', $book->id)->exists();
             $isFavorited = auth()->user()->favorites()->where('book_id', $book->id)->where('status', 'active')->exists();
-            $userComment = $book->comments()->where('user_id', auth()->id())->whereNull('parent_id')->first();
+            $userRating = $book->ratings()->where('user_id', auth()->id())->first();
         }
 
-        return view('books-detail', compact('book', 'hasPurchased', 'isFavorited', 'userComment'));
+        return view('books-detail', compact('book', 'hasPurchased', 'isFavorited', 'userRating'));
     }
 
     public function purchase(Book $book)

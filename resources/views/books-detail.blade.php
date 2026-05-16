@@ -238,9 +238,7 @@
                             @auth
                                 <div class="card border-0 shadow-sm mb-4">
                                     <div class="card-body">
-                                        @php
-                                            $userRating = $book->ratings()->where('user_id', auth()->id())->first();
-                                        @endphp
+                                        
                                         <h5 class="fw-bold mb-3">
                                             <i class="bi bi-star-fill text-warning me-2"></i>Đánh giá & Bình luận
                                         </h5>
@@ -288,7 +286,7 @@
                                 <h5 class="fw-bold mb-3">
                                     <i class="bi bi-chat-left-text me-2"></i>Danh sách đánh giá ({{ $ratingCount }})
                                 </h5>
-                                @forelse($book->ratings()->with('user')->latest()->get() as $rating)
+                                @forelse($book->ratings as $rating)
                                     <div class="card review-card mb-3">
                                         <div class="card-body">
                                             <div class="d-flex mb-2">
