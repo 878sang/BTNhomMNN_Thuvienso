@@ -40,12 +40,15 @@ class BookController extends Controller
         $book = Book::where('slug', $slug)->where('status', 'approved')
             ->with(['author', 'category', 'publisher', 'ratings.user'])
             ->firstOrFail();
-        
+
         $book->increment('view_count');
 
         $hasPurchased = ($book->price_points == 0);
         $isFavorited = false;
         $userRating = null;
+        $hasRated = false;
+        $bookComments = collect();
+
         if (auth()->check()) {
             $user = auth()->user();
             $hasPurchased = $hasPurchased
@@ -53,9 +56,15 @@ class BookController extends Controller
                 || $user->role === 'admin';
             $isFavorited = $user->favorites()->where('book_id', $book->id)->where('status', 'active')->exists();
             $userRating = $book->ratings()->where('user_id', auth()->id())->first();
+            $hasRated = $userRating !== null;
+            // Lấy comments của sách (hiển thị tất cả)
+            $bookComments = $book->comments()
+                ->with('user')
+                ->latest()
+                ->get();
         }
 
-        return view('books-detail', compact('book', 'hasPurchased', 'isFavorited', 'userRating'));
+        return view('books-detail', compact('book', 'hasPurchased', 'isFavorited', 'userRating', 'hasRated', 'bookComments'));
     }
 
     public function purchase(Book $book)

@@ -9,7 +9,15 @@ class Comment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'book_id', 'content', 'parent_id'];
+    protected $fillable = ['user_id', 'book_id', 'content', 'parent_id', 'status'];
+
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
+    }
 
     public function user()
     {

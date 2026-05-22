@@ -244,63 +244,87 @@
 
                         <!-- Reviews List -->
                         <div class="col-lg-8">
-                            <!-- Write Review & Comment (Combined) -->
                             @auth
-                                <div class="card border-0 shadow-sm mb-4">
-                                    <div class="card-body">
-                                        
-                                        <h5 class="fw-bold mb-3">
-                                            <i class="bi bi-star-fill text-warning me-2"></i>Đánh giá & Bình luận
-                                        </h5>
-                                        
-                                        <!-- Star Rating -->
-                                        <div class="mb-3">
-                                            <label class="form-label fw-bold">Chọn số sao:</label>
-                                            <div class="star-rating-wrapper">
-                                                <div class="star-rating-input" id="starRatingContainer">
-                                                    @for($i = 1; $i <= 5; $i++)
-                                                        <i class="bi bi-star rating-star-icon {{ ($userRating && $userRating->stars >= $i) ? 'active' : '' }}" data-rating="{{ $i }}"></i>
-                                                    @endfor
-                                                    <input type="hidden" name="stars" id="ratingValue" value="{{ $userRating ? $userRating->stars : '5' }}">
+                                {{-- LẦN ĐẦU: Chưa đánh giá -> Hiện form đánh giá + bình luận --}}
+                                @if(!$hasRated)
+                                    <div class="card border-0 shadow-sm mb-4">
+                                        <div class="card-body">
+                                            <h5 class="fw-bold mb-3">
+                                                <i class="bi bi-star-fill text-warning me-2"></i>Đánh giá & Bình luận
+                                            </h5>
+                                            <p class="text-muted small mb-3">Đây là lần đầu bạn đánh giá tài liệu này. Hãy cho chúng tôi biết cảm nhận của bạn!</p>
+
+                                            <form action="{{ route('books.rate', $book) }}" method="POST" id="ratingForm">
+                                                @csrf
+                                                <!-- Star Rating -->
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Chọn số sao:</label>
+                                                    <div class="star-rating-wrapper">
+                                                        <div class="star-rating-input" id="starRatingContainer">
+                                                            @for($i = 1; $i <= 5; $i++)
+                                                                <i class="bi bi-star rating-star-icon {{ $i <= 5 ? 'active' : '' }}" data-rating="{{ $i }}"></i>
+                                                            @endfor
+                                                        </div>
+                                                        <span class="ms-3 text-muted" id="ratingText">Tuyệt vời</span>
+                                                    </div>
+                                                    <input type="hidden" name="stars" id="formRatingValue" value="5">
                                                 </div>
-                                                <span class="ms-3 text-muted" id="ratingText">Tuyệt vời</span>
-                                            </div>
+
+                                                <!-- Comment Input -->
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Viết bình luận của bạn:</label>
+                                                    <textarea id="commentInput" name="comment" class="form-control" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về tài liệu này..." maxlength="1000"></textarea>
+                                                    <div class="d-flex justify-content-between mt-1">
+                                                        <small class="text-muted"><span id="charCount">0</span>/1000 ký tự</small>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-warning fw-bold px-4">
+                                                    <i class="bi bi-send me-2"></i>Gửi đánh giá
+                                                </button>
+                                            </form>
                                         </div>
-                                        
-                                        <!-- Comment Input -->
-                                        <form action="{{ route('books.rate', $book) }}" method="POST" id="combinedForm">
-                                            @csrf
-                                            <input type="hidden" name="stars" id="formRatingValue" value="{{ $userRating ? $userRating->stars : '5' }}">
-                                            <input type="hidden" name="comment" id="hiddenComment">
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold">Viết bình luận của bạn:</label>
-                                                <textarea id="commentInput" class="form-control" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về tài liệu này..." maxlength="1000">{{ $userRating ? $userRating->comment : '' }}</textarea>
-                                                <div class="d-flex justify-content-between mt-1">
-                                                    <small class="text-muted"><span id="charCount">0</span>/1000 ký tự</small>
-                                                </div>
-                                            </div>
-                                            <button type="submit" class="btn btn-warning fw-bold px-4" id="btnSubmitRating">
-                                                <i class="bi bi-send me-2"></i>Gửi đánh giá
-                                            </button>
-                                        </form>
                                     </div>
-                                </div>
+
+                                {{-- NHỮNG LẦN SAU: Đã đánh giá -> Chỉ hiện form bình luận --}}
+                                @else
+                                    <div class="card border-0 shadow-sm mb-4">
+                                        <div class="card-body">
+                                            <h5 class="fw-bold mb-3">
+                                                <i class="bi bi-chat-left-text me-2"></i>Thêm bình luận
+                                            </h5>
+                                            <p class="text-muted small mb-3">Bạn đã đánh giá tài liệu này. Hãy tiếp tục chia sẻ ý kiến của bạn!</p>
+
+                                            <form action="{{ route('books.rate', $book) }}" method="POST" id="commentForm">
+                                                @csrf
+                                                <div class="mb-3">
+                                                    <textarea name="comment" id="commentInput" class="form-control" rows="3" placeholder="Viết bình luận của bạn..." maxlength="1000"></textarea>
+                                                    <div class="d-flex justify-content-between mt-1">
+                                                        <small class="text-muted"><span id="charCount">0</span>/1000 ký tự</small>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary fw-bold px-4">
+                                                    <i class="bi bi-send me-2"></i>Gửi bình luận
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @endif
                             @else
                                 <div class="alert alert-info rounded-4 border-0 shadow-sm">
                                     <i class="bi bi-info-circle me-2"></i> Vui lòng <a href="{{ route('login') }}" class="fw-bold">đăng nhập</a> để gửi đánh giá và bình luận.
                                 </div>
                             @endauth
 
-                            <!-- Review List -->
+                            <!-- Danh sách Đánh giá -->
                             <div id="reviewsList">
                                 <h5 class="fw-bold mb-3">
-                                    <i class="bi bi-chat-left-text me-2"></i>Danh sách đánh giá ({{ $ratingCount }})
+                                    <i class="bi bi-star-fill text-warning me-2"></i>Đánh giá ({{ $ratingCount }})
                                 </h5>
                                 @forelse($book->ratings as $rating)
                                     <div class="card review-card mb-3">
                                         <div class="card-body">
                                             <div class="d-flex mb-2">
-                                                <img src="https://ui-avatars.com/api/?name={{ urlencode($rating->user->name) }}&background=random&color=fff" 
+                                                <img src="https://ui-avatars.com/api/?name={{ urlencode($rating->user->name) }}&background=random&color=fff"
                                                      alt="" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
                                                 <div>
                                                     <h6 class="mb-0 fw-bold">{{ $rating->user->name }}</h6>
@@ -312,15 +336,43 @@
                                                 </div>
                                                 <span class="ms-auto text-muted small">{{ $rating->created_at->format('d/m/Y') }}</span>
                                             </div>
-                                            <p class="mb-0 text-dark" style="line-height: 1.6;">
-                                                {{ $rating->comment ?: 'Người dùng không viết bình luận.' }}
-                                            </p>
+                                            @if($rating->comment)
+                                                <p class="mb-0 text-dark" style="line-height: 1.6;">{{ $rating->comment }}</p>
+                                            @endif
                                         </div>
                                     </div>
                                 @empty
                                     <p class="text-center text-muted">Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá!</p>
                                 @endforelse
                             </div>
+
+                            <!-- Danh sách Bình luận -->
+                            @if($bookComments->count() > 0)
+                                <div id="commentsList" class="mt-4">
+                                    <h5 class="fw-bold mb-3">
+                                        <i class="bi bi-chat-left-text me-2"></i>Bình luận ({{ $bookComments->count() }})
+                                    </h5>
+                                    @foreach($bookComments as $comment)
+                                        <div class="card mb-3 {{ $comment->user_id === auth()->id() ? 'border-primary' : '' }}">
+                                            <div class="card-body">
+                                                <div class="d-flex mb-2">
+                                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($comment->user->name ?? 'User') }}&background=random&color=fff"
+                                                         alt="" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                                    <div>
+                                                        <h6 class="mb-0 fw-bold">{{ $comment->user->name ?? 'N/A' }}
+                                                            @if($comment->user_id === auth()->id())
+                                                                <span class="badge bg-primary ms-2">Bạn</span>
+                                                            @endif
+                                                        </h6>
+                                                        <small class="text-muted">{{ $comment->created_at->format('d/m/Y H:i') }}</small>
+                                                    </div>
+                                                </div>
+                                                <p class="mb-0 text-dark" style="line-height: 1.6;">{{ $comment->content }}</p>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -554,7 +606,6 @@
 
         // Rating Star with Hover Effects
         const stars = document.querySelectorAll('.rating-star-icon');
-        const ratingInput = document.getElementById('ratingValue');
         const ratingText = document.getElementById('ratingText');
         const ratingLabels = ['', 'Rất tệ', 'Tệ', 'Bình thường', 'Tốt', 'Tuyệt vời'];
 
@@ -574,15 +625,12 @@
             if (ratingText) {
                 ratingText.textContent = ratingLabels[rating] || '';
             }
-            if (ratingInput) ratingInput.value = rating;
             const formRating = document.getElementById('formRatingValue');
             if (formRating) formRating.value = rating;
         }
 
-        // Initialize with current rating
-        if (ratingInput) {
-            updateStars(parseInt(ratingInput.value));
-        }
+        // Initialize with current rating (default 5 stars)
+        updateStars(5);
 
         stars.forEach(star => {
             star.style.cursor = 'pointer';
