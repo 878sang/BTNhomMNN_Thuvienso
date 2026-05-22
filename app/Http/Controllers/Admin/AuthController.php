@@ -28,13 +28,17 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        if (Auth::guard('admin')->user()->role !== 'admin') {
+        $admin = Auth::guard('admin')->user();
+
+        if ($admin->role !== 'admin') {
             Auth::guard('admin')->logout();
-            
+
             return redirect()->route('admin.login')->withErrors([
                 'email' => 'Tài khoản này không có quyền truy cập trang quản trị.',
             ]);
         }
+
+        $admin->update(['last_login_at' => now()]);
 
         return redirect()->intended(route('admin.dashboard', absolute: false));
     }

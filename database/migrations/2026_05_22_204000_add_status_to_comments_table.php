@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('ratings', function (Blueprint $table) {
-            $table->text('comment')->nullable()->after('stars');
+        Schema::table('comments', function (Blueprint $table) {
+            $table->string('status')->default('approved')->after('content');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('ratings', function (Blueprint $table) {
-            $table->dropColumn('comment');
+        Schema::table('comments', function (Blueprint $table) {
+            $table->dropColumn('status');
         });
     }
 };

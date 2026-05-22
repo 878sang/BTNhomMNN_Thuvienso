@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('authors', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->text('bio')->nullable();
-            $table->string('image')->nullable();
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->timestamp('last_login_at')->nullable()->after('status');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('authors');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('last_login_at');
+        });
     }
 };

@@ -12,16 +12,19 @@ class CommentController extends Controller
     {
         $query = Comment::with(['user', 'book']);
 
-        if ($request->has('search')) {
+        // Tìm kiếm
+        if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->whereHas('user', function($q) use ($search) {
-                $q->where('name', 'like', "%$search%");
-            })->orWhereHas('book', function($q) use ($search) {
-                $q->where('title', 'like', "%$search%");
-            })->orWhere('content', 'like', "%$search%");
+            $query->where(function($q) use ($search) {
+                $q->whereHas('user', function($q2) use ($search) {
+                    $q2->where('name', 'like', "%$search%");
+                })->orWhereHas('book', function($q2) use ($search) {
+                    $q2->where('title', 'like', "%$search%");
+                })->orWhere('content', 'like', "%$search%");
+            });
         }
 
-        $comments = $query->latest()->paginate(10);
+        $comments = $query->latest()->paginate(15);
         return view('admin.comments.index', compact('comments'));
     }
 

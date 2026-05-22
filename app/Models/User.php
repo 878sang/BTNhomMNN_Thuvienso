@@ -25,6 +25,7 @@ class User extends Authenticatable
         'points',
         'role',
         'status',
+        'last_login_at',
     ];
 
     public function isAdmin(): bool
@@ -92,6 +93,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'status' => 'boolean',
+            'last_login_at' => 'datetime',
+            'points' => 'integer',
         ];
     }
 }
