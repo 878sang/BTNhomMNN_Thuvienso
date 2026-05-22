@@ -9,7 +9,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = \App\Models\User::where('id', '!=', auth()->id())->latest()->paginate(10);
+        $users = \App\Models\User::latest()->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
@@ -34,6 +34,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'points' => 'required|integer|min:0',
             'role' => 'required|in:user,admin',
+            'status' => 'required|boolean',
         ]);
 
         $user->update($request->all());

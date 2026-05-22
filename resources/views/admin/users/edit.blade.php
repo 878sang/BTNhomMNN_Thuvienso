@@ -32,6 +32,13 @@
                             <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Quản trị viên</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Trạng thái tài khoản</label>
+                        <select name="status" class="form-select">
+                            <option value="1" {{ $user->status == 1 || $user->status === true ? 'selected' : '' }}>Hoạt động</option>
+                            <option value="0" {{ $user->status == 0 || $user->status === false ? 'selected' : '' }}>Bị khóa</option>
+                        </select>
+                    </div>
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                         <a href="{{ route('admin.users.index') }}" class="btn btn-light px-4">Hủy</a>
                         <button type="submit" class="btn btn-primary px-4">Cập nhật</button>

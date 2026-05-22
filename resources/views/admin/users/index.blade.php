@@ -18,6 +18,7 @@
                         <th>Vai trò</th>
                         <th>Điểm thưởng</th>
                         <th>Trạng thái</th>
+                        <th>Hoạt động cuối</th>
                         <th>Ngày tham gia</th>
                         <th class="pe-4 text-end">Hành động</th>
                     </tr>
@@ -53,6 +54,13 @@
                                 <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-1">Bị khóa</span>
                             @endif
                         </td>
+                        <td>
+                            @if($user->last_login_at)
+                                <small class="text-muted">{{ $user->last_login_at->diffForHumans() }}</small>
+                            @else
+                                <small class="text-muted">Chưa có</small>
+                            @endif
+                        </td>
                         <td>{{ $user->created_at->format('d/m/Y') }}</td>
                          <td class="pe-4 text-end">
                              <div class="btn-group">
@@ -80,7 +88,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
+                        <td colspan="7" class="text-center py-5 text-muted">
                             Không tìm thấy người dùng nào.
                         </td>
                     </tr>
