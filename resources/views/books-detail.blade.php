@@ -131,6 +131,16 @@
                                     @endif
                                 </div>
                             </div>
+                            @if($canPreview)
+                                <p class="text-muted small mt-3 mb-0">
+                                    <i class="bi bi-headphones text-orange me-1"></i>
+                                    Khi mở đọc online, dùng nút <strong>Nghe sách</strong> để nghe AI đọc nội dung
+                                    ({{ $hasPurchased ? 'tối đa 80 trang' : '5 trang xem trước' }}).
+                                    @if(!env('GEMINI_API_KEY'))
+                                        <span class="d-block mt-1">PDF scan ảnh cần cấu hình <code>GEMINI_API_KEY</code> để trích chữ tốt hơn.</span>
+                                    @endif
+                                </p>
+                            @endif
                         </div>
                     </div>
 
@@ -326,28 +336,38 @@
                     <div class="modal-header bg-dark text-white border-0 py-2 d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <h6 class="modal-title mb-0 me-3">{{ $book->title }} - {{ $hasPurchased ? 'Bản đầy đủ' : 'Đọc thử' }}</h6>
-                            <div class="voice-controls d-flex flex-column gap-1 border-start ps-3 ms-1" style="border-color: rgba(255,255,255,0.2) !important;">
-                                <div class="d-flex align-items-center gap-2">
-                                    <button id="btn-read-aloud" class="btn btn-sm btn-orange rounded-pill px-3 py-1 d-flex align-items-center gap-2 shadow-sm" style="background-color: #ED553B; border: none; color: white;">
+                            <div class="voice-controls border-start ps-3 ms-1">
+                                <div class="d-flex align-items-center flex-wrap gap-2">
+                                    <button type="button" id="btn-read-aloud" class="btn btn-sm btn-orange rounded-pill px-3 py-1 d-flex align-items-center gap-2">
                                         <i class="bi bi-volume-up-fill"></i>
-                                        <span id="read-aloud-text" class="small fw-bold">Nghe sách AI</span>
+                                        <span id="read-aloud-text" class="small fw-bold">Nghe sách</span>
                                     </button>
-                                    <div id="voice-settings" class="d-none animate__animated animate__fadeIn d-flex align-items-center gap-2 bg-dark-subtle rounded-pill px-2 py-1">
-                                        <select id="voice-select" class="form-select form-select-sm bg-transparent text-white border-0 py-0 shadow-none" style="width: 120px; font-size: 0.7rem;"></select>
-                                        <input type="range" id="voice-rate" min="0.5" max="2" value="1" step="0.1" class="form-range" style="width: 50px; height: 10px;" title="Tốc độ">
+                                    <button type="button" id="btn-read-aloud-stop" class="btn btn-sm btn-outline-light rounded-pill px-2 py-1 d-none" title="Dừng">
+                                        <i class="bi bi-stop-fill"></i>
+                                    </button>
+                                    <div id="voice-settings" class="d-none d-flex align-items-center gap-2 read-aloud-settings">
+                                        <select id="voice-select" class="form-select form-select-sm" title="Giọng đọc"></select>
+                                        <input type="range" id="voice-rate" min="0.5" max="2" value="1" step="0.1" class="form-range" title="Tốc độ">
                                     </div>
                                 </div>
-                                <!-- Progress Indicator -->
-                                <div id="reading-progress-container" class="d-none" style="width: 200px;">
-                                    <div class="progress" style="height: 4px; background: rgba(255,255,255,0.1);">
-                                        <div id="reading-progress-bar" class="progress-bar bg-orange" role="progressbar" style="width: 0%; background-color: #ED553B;"></div>
+                                <div id="reading-progress-container" class="read-aloud-progress d-none mt-2">
+                                    <div class="progress">
+                                        <div id="reading-progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
                                     </div>
-                                    <div class="d-flex justify-content-between" style="font-size: 0.6rem;">
-                                        <span id="reading-status" class="text-white-50">Đang chuẩn bị...</span>
-                                        <span id="reading-percent" class="text-white-50">0%</span>
+                                    <div class="read-aloud-progress-labels">
+                                        <span id="reading-status">Đang chuẩn bị...</span>
+                                        <span id="reading-percent">0%</span>
                                     </div>
+                                    <small id="reading-meta" class="text-white-50 d-block mt-1"></small>
                                 </div>
                             </div>
+                            <div id="read-aloud-config" class="d-none"
+                                 data-text-url="{{ route('books.read_aloud_text', $book) }}"
+                                 data-pdf-url="{{ route('books.preview_pdf', $book) }}?t={{ $hasPurchased ? 'full' : 'preview' }}"
+                                 data-is-preview="{{ $hasPurchased ? '0' : '1' }}"
+                                 data-max-pages="{{ $hasPurchased ? min((int)($book->page_count ?: 80), 80) : 5 }}"
+                                 data-book-title="{{ $book->title }}"
+                                 data-csrf="{{ csrf_token() }}"></div>
                         </div>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
@@ -693,153 +713,9 @@
             });
         }
 
-        // Text-to-Speech (Read Aloud) - FIXED Version
-        const btnReadAloud = document.getElementById('btn-read-aloud');
-        const readAloudText = document.getElementById('read-aloud-text');
-        const voiceSettings = document.getElementById('voice-settings');
-        const voiceSelect = document.getElementById('voice-select');
-        const voiceRate = document.getElementById('voice-rate');
-        const progressContainer = document.getElementById('reading-progress-container');
-        const progressBar = document.getElementById('reading-progress-bar');
-        const readingStatus = document.getElementById('reading-status');
-        const readingPercent = document.getElementById('reading-percent');
-        
-        const synth = window.speechSynthesis;
-        let utterance = null;
-        let voices = [];
-
-        function loadVoices() {
-            voices = synth.getVoices();
-            if (voices.length === 0) return;
-
-            const viVoices = voices.filter(v => v.lang.includes('vi'));
-            const enVoices = voices.filter(v => v.lang.includes('en'));
-            const targetVoices = viVoices.length > 0 ? viVoices : enVoices;
-
-            voiceSelect.innerHTML = voices
-                .filter(v => v.lang.includes('vi') || v.lang.includes('en'))
-                .map(v => `<option value="${v.name}" ${(v.name.includes('Google') || v.name.includes('Natural')) && v.lang.includes('vi') ? 'selected' : ''}>${v.name}</option>`)
-                .join('');
-        }
-
-        loadVoices();
-        if (synth.onvoiceschanged !== undefined) {
-            synth.onvoiceschanged = loadVoices;
-        }
-        setTimeout(loadVoices, 500);
-        setTimeout(loadVoices, 1000);
-
-        function updateProgress(percent, status) {
-            if (progressBar) progressBar.style.width = percent + '%';
-            if (readingPercent) readingPercent.innerText = Math.round(percent) + '%';
-            if (status && readingStatus) readingStatus.innerText = status;
-        }
-
-        if (btnReadAloud) {
-            btnReadAloud.addEventListener('click', async function() {
-                if (synth.speaking) {
-                    if (synth.paused) {
-                        synth.resume();
-                        readAloudText.innerText = 'Đang phát';
-                    } else {
-                        synth.pause();
-                        readAloudText.innerText = 'Tiếp tục';
-                    }
-                    return;
-                }
-
-                synth.cancel();
-
-                progressContainer.classList.remove('d-none');
-                updateProgress(0, 'Đang chuẩn bị AI...');
-                readAloudText.innerText = 'Đang quét...';
-
-                try {
-                    const pdfUrl = '{{ route('books.preview_pdf', $book) }}?t={{ $hasPurchased ? 'full' : 'preview' }}';
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                    
-                    updateProgress(10, 'Đang tải tệp PDF...');
-                    const loadingTask = pdfjsLib.getDocument(pdfUrl);
-                    const pdf = await loadingTask.promise;
-                    
-                    let fullText = "";
-                    const pagesToScan = Math.min(pdf.numPages, 5);
-                    
-                    for (let i = 1; i <= pagesToScan; i++) {
-                        updateProgress(10 + (i / pagesToScan * 40), `Đang lấy chữ trang ${i}/${pagesToScan}...`);
-                        const page = await pdf.getPage(i);
-                        const textContent = await page.getTextContent();
-                        fullText += textContent.items.map(item => item.str).join(" ") + " ";
-                    }
-
-                    if (!fullText.trim() || fullText.length < 50) {
-                        updateProgress(50, 'Dùng mô tả sách...');
-                        fullText = document.querySelector('.book-description').innerText;
-                    }
-
-                    utterance = new SpeechSynthesisUtterance(fullText);
-                    
-                    const selectedVoice = voices.find(v => v.name === voiceSelect.value);
-                    if (selectedVoice) {
-                        utterance.voice = selectedVoice;
-                        utterance.lang = selectedVoice.lang;
-                    } else {
-                        utterance.lang = 'vi-VN';
-                    }
-                    
-                    utterance.rate = parseFloat(voiceRate.value) || 1;
-                    utterance.pitch = 1;
-                    utterance.volume = 1;
-
-                    utterance.onstart = () => {
-                        updateProgress(50, 'Bắt đầu đọc...');
-                        readAloudText.innerText = 'Đang phát';
-                        voiceSettings.classList.remove('d-none');
-                    };
-
-                    utterance.onboundary = (event) => {
-                        const percent = 50 + (event.charIndex / fullText.length * 50);
-                        updateProgress(percent, 'Đang phát âm...');
-                    };
-
-                    utterance.onend = () => {
-                        updateProgress(100, 'Hoàn thành');
-                        setTimeout(() => {
-                            readAloudText.innerText = 'Nghe sách AI';
-                            progressContainer.classList.add('d-none');
-                            voiceSettings.classList.add('d-none');
-                        }, 1500);
-                    };
-
-                    utterance.onerror = (e) => {
-                        readAloudText.innerText = 'Lỗi âm thanh';
-                        updateProgress(0, 'Lỗi hệ thống giọng nói');
-                    };
-
-                    setTimeout(() => {
-                        synth.speak(utterance);
-                    }, 100);
-
-                } catch (error) {
-                    readAloudText.innerText = 'Dùng mô tả';
-                    
-                    const fallbackText = document.querySelector('.book-description').innerText;
-                    const fallbackUtterance = new SpeechSynthesisUtterance(fallbackText);
-                    fallbackUtterance.lang = 'vi-VN';
-                    synth.cancel();
-                    synth.speak(fallbackUtterance);
-                }
-            });
-        }
-
-        const readModal = document.getElementById('readOnlineModal');
-        if (readModal) {
-            readModal.addEventListener('hidden.bs.modal', () => {
-                synth.cancel();
-            });
-        }
     });
 </script>
+<script src="{{ asset('assets/js/book-read-aloud.js') }}"></script>
 <style>
     .rating-star-icon { font-size: 2rem; cursor: pointer; color: #e0e0e0; transition: all 0.2s ease; margin-right: 2px; }
     .rating-star-icon.active { color: #ffc107; filter: drop-shadow(0 0 3px rgba(255, 193, 7, 0.5)); }

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Book;
+use App\Services\GeminiReadAloudService;
+use App\Services\PdfTextExtractor;
+use Illuminate\Support\Facades\Cache;
 
 class BookController extends Controller
 {
@@ -44,8 +47,11 @@ class BookController extends Controller
         $isFavorited = false;
         $userRating = null;
         if (auth()->check()) {
-            $hasPurchased = $hasPurchased || auth()->user()->purchasedBooks()->where('book_id', $book->id)->exists();
-            $isFavorited = auth()->user()->favorites()->where('book_id', $book->id)->where('status', 'active')->exists();
+            $user = auth()->user();
+            $hasPurchased = $hasPurchased
+                || $user->purchasedBooks()->where('book_id', $book->id)->exists()
+                || $user->role === 'admin';
+            $isFavorited = $user->favorites()->where('book_id', $book->id)->where('status', 'active')->exists();
             $userRating = $book->ratings()->where('user_id', auth()->id())->first();
         }
 
@@ -159,6 +165,103 @@ class BookController extends Controller
         }
 
         return \Illuminate\Support\Facades\Storage::disk('public')->download($downloadPath, $book->title . '.' . pathinfo($downloadPath, PATHINFO_EXTENSION));
+    }
+
+    public function readAloudText(Book $book)
+    {
+        if ($book->status !== 'approved') {
+            return response()->json(['error' => 'Tài liệu không khả dụng.'], 403);
+        }
+
+        $user = auth()->user();
+        $hasFullAccess = $book->price_points == 0
+            || ($user && ($user->purchasedBooks()->where('book_id', $book->id)->exists() || $user->role === 'admin'));
+
+        $maxPages = $hasFullAccess
+            ? min((int) ($book->page_count ?: 80), 80)
+            : 5;
+
+        $cacheKey = "read_aloud_text_{$book->id}_" . ($hasFullAccess ? 'full' : 'preview');
+        if (Cache::has($cacheKey)) {
+            return response()->json(Cache::get($cacheKey));
+        }
+
+        $pdfPath = $this->resolvePdfPathForReading($book, $hasFullAccess);
+        $source = 'description';
+        $text = '';
+        $pagesRead = 0;
+        $totalPages = (int) ($book->page_count ?: 0);
+
+        if ($pdfPath && is_readable($pdfPath)) {
+            $extracted = (new PdfTextExtractor())->extractFromFile($pdfPath, $maxPages);
+            $text = $extracted['text'];
+            $pagesRead = $extracted['pages_read'];
+            $totalPages = $extracted['total_pages'] ?: $totalPages;
+            $source = 'pdf_parser';
+        }
+
+        if (strlen(trim($text)) < 80 && env('GEMINI_API_KEY')) {
+            $geminiText = (new GeminiReadAloudService())->extractText($book, $maxPages);
+            if ($geminiText && strlen($geminiText) > strlen($text)) {
+                $text = $geminiText;
+                $source = 'gemini';
+            }
+        }
+
+        if (strlen(trim($text)) < 30) {
+            $text = strip_tags((string) $book->description);
+            $text = (new PdfTextExtractor())->normalizeText($text);
+            $source = 'description';
+        }
+
+        if (strlen($text) > 120000) {
+            $text = mb_substr($text, 0, 120000) . '…';
+        }
+
+        $payload = [
+            'text' => $text,
+            'source' => $source,
+            'pages_read' => $pagesRead,
+            'total_pages' => $totalPages,
+            'max_pages' => $maxPages,
+            'is_preview' => !$hasFullAccess,
+            'char_count' => mb_strlen($text),
+        ];
+
+        Cache::put($cacheKey, $payload, now()->addHour());
+
+        return response()->json($payload);
+    }
+
+    private function resolvePdfPathForReading(Book $book, bool $fullAccess): ?string
+    {
+        if ($fullAccess) {
+            if ($book->pdf_version_path) {
+                $path = storage_path('app/public/' . $book->pdf_version_path);
+                if (file_exists($path)) {
+                    return $path;
+                }
+            }
+            $filePath = storage_path('app/public/' . $book->file_path);
+            if (file_exists($filePath) && strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'pdf') {
+                return $filePath;
+            }
+            return null;
+        }
+
+        if ($book->preview_path) {
+            $previewPath = storage_path('app/public/' . $book->preview_path);
+            if (file_exists($previewPath)) {
+                return $previewPath;
+            }
+        }
+
+        $filePath = storage_path('app/public/' . $book->file_path);
+        if (file_exists($filePath) && strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'pdf') {
+            return $filePath;
+        }
+
+        return null;
     }
 
     public function previewPdf(Book $book)

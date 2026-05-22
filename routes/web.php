@@ -97,6 +97,7 @@ Route::get('/wishlist', [App\Http\Controllers\UserController::class, 'wishlist']
 
 Route::get('/books/{book}/download', [App\Http\Controllers\BookController::class, 'download'])->name('books.download');
 Route::get('/books/{book}/preview-pdf', [App\Http\Controllers\BookController::class, 'previewPdf'])->name('books.preview_pdf');
+Route::get('/books/{book}/read-aloud-text', [App\Http\Controllers\BookController::class, 'readAloudText'])->name('books.read_aloud_text');
 
 Route::post('/ai/chat', [App\Http\Controllers\AiChatController::class, 'chat'])->name('ai.chat');
 

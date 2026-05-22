@@ -12,7 +12,8 @@
         "laravel/tinker": "^2.10.1",
         "phpoffice/phpword": "^1.3",
         "setasign/fpdf": "*",
-        "setasign/fpdi": "*"
+        "setasign/fpdi": "*",
+        "smalot/pdfparser": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
